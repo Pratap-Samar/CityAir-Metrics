@@ -1,17 +1,7 @@
-import os
-
 import psycopg
-from dotenv import load_dotenv
 
 
-load_dotenv()
-
-
-DATABASE_URL = (
-    f"postgresql://{os.environ['POSTGRES_USER']}:"
-    f"{os.environ['POSTGRES_PASSWORD']}@localhost:5432/"
-    f"{os.environ['POSTGRES_DB']}"
-)
+from config.settings import DATABASE_URL
 
 
 def get_connection():

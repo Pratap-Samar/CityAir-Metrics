@@ -1,8 +1,11 @@
+import time
 import requests
 
-BASE_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
+from config.settings import AIR_QUALITY_API_URL, API_MAX_RETRIES, API_TIMEOUT_SECONDS
+
 
 def fetch_air_quality(latitude: float, longitude: float) -> dict:
+
     params = {
         "latitude": latitude,
         "longitude": longitude,
@@ -18,12 +21,22 @@ def fetch_air_quality(latitude: float, longitude: float) -> dict:
         "timezone": "auto",
     }
 
-    response = requests.get(
-        BASE_URL,
-        params=params,
-        timeout=10,
-    )
+    for attempt in range(API_MAX_RETRIES):
 
-    response.raise_for_status()
+        try:
+            response = requests.get(
+                AIR_QUALITY_API_URL,
+                params=params,
+                timeout=API_TIMEOUT_SECONDS,
+            )
 
-    return response.json()
+            response.raise_for_status()
+
+            return response.json()
+
+        except requests.RequestException:
+
+            if attempt == API_MAX_RETRIES-1:
+                raise
+
+            time.sleep(2)

@@ -1,6 +1,16 @@
 from ingestion.models import WeatherObservation
-from database.repositories import save_weather_observation
+from database.connection import get_connection
+from database.repositories import (
+    get_or_create_city,
+    save_weather_observation,
+)
 
+city = {
+    "name": "Delhi",
+    "country": "India",
+    "latitude": 28.6139,
+    "longitude": 77.2090,
+}
 
 observation = WeatherObservation(
     city="Delhi",
@@ -17,10 +27,23 @@ observation = WeatherObservation(
     wind_direction_degrees=18,
 )
 
+connection = get_connection()
 
-observation_id = save_weather_observation(
-    observation,
-    city_id=1,
-)
+try:
+    city_id = get_or_create_city(
+        city,
+        connection,
+    )
+    
+    print("City ID:", city_id)
 
-print("Saved weather observation ID:", observation_id)
+    observation_id = save_weather_observation(
+        observation,
+        city_id,
+        connection,
+    )
+    
+    print("Saved weather observation ID:", observation_id)
+
+finally:
+    connection.close()

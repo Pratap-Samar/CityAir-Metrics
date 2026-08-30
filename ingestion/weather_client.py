@@ -1,6 +1,8 @@
+import time
 import requests
 
-BASE_URL = "https://api.open-meteo.com/v1/forecast"
+from config.settings import WEATHER_API_URL, API_MAX_RETRIES, API_TIMEOUT_SECONDS
+
 
 def fetch_weather(latitude: float,longitude: float) -> dict:
     params={
@@ -18,12 +20,21 @@ def fetch_weather(latitude: float,longitude: float) -> dict:
        "timezone" : "auto"
     }
 
-    response = requests.get(
-        BASE_URL,
-        params=params,
-        timeout=10
-    )
-    response.raise_for_status()
+    for attempt in range(API_MAX_RETRIES):
 
-    return response.json()
+        try:
+            response = requests.get(
+                WEATHER_API_URL,
+                params=params,
+                timeout=API_TIMEOUT_SECONDS
+            )
 
+            response.raise_for_status()
+
+            return response.json()
+
+        except requests.RequestException:
+            if attempt == API_MAX_RETRIES-1:
+                raise
+            
+            time.sleep(2)
