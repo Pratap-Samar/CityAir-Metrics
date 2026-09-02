@@ -1,6 +1,6 @@
 import logging 
 import time
-
+from datetime import datetime, timezone
 from database.connection import get_connection
 from ingestion.cities import CITIES
 from ingestion.weather_client import fetch_weather
@@ -13,6 +13,8 @@ from database.repositories import (
     get_or_create_city,
     save_weather_observation,
     save_air_quality_observation,
+    create_pipeline_run,
+    complete_pipeline_run,
 )
 from ingestion.validation import (
     validate_weather_freshness,
@@ -28,10 +30,16 @@ logger = logging.getLogger(__name__)
 
 def run_pipeline():
     start_time = time.time()
+    started_at = datetime.now(timezone.utc)
+
     cities_processed = 0
     cities_failed = 0
 
     connection = get_connection()
+    run_id = create_pipeline_run(
+        started_at,
+        connection,
+    )
 
     try:
         for city in CITIES:
@@ -54,7 +62,9 @@ def run_pipeline():
                     weather_data,
                 )
 
-                validate_weather_freshness(weather_observation)
+                validate_weather_freshness(
+                    weather_observation,
+                )
 
                 weather_id = save_weather_observation(
                     weather_observation,
@@ -72,7 +82,9 @@ def run_pipeline():
                     air_quality_data,
                 )
 
-                validate_air_quality_freshness(air_quality_observation)
+                validate_air_quality_freshness(
+                    air_quality_observation,
+                )
 
                 air_quality_id = save_air_quality_observation(
                     air_quality_observation,
@@ -98,6 +110,16 @@ def run_pipeline():
                 )
 
         duration = time.time() - start_time
+
+        complete_pipeline_run(
+            run_id=run_id,
+            completed_at=datetime.now(timezone.utc),
+            status="SUCCESS",
+            cities_processed=cities_processed,
+            cities_failed=cities_failed,
+            duration_seconds=duration,
+            connection=connection,
+        )
 
         logger.info(
             "Pipeline run completed: "

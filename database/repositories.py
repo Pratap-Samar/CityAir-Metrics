@@ -137,3 +137,60 @@ def save_air_quality_observation(
     connection.commit()
 
     return observation_id
+
+def create_pipeline_run(started_at, connection):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO pipeline_runs (
+                started_at,
+                status
+            )
+            VALUES (%s, %s)
+            RETURNING id;
+            """,
+            (
+                started_at,
+                "RUNNING",
+            ),
+        )
+        run_id = cursor.fetchone()[0]
+
+    connection.commit()
+    return run_id
+
+def complete_pipeline_run(
+    run_id,
+    completed_at,
+    status,
+    cities_processed,
+    cities_failed,
+    duration_seconds,
+    connection,
+    error_message=None,
+):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            UPDATE pipeline_runs
+            SET
+                completed_at = %s,
+                status = %s,
+                cities_processed = %s,
+                cities_failed = %s,
+                duration_seconds = %s,
+                error_message = %s
+            WHERE id = %s;
+            """,
+            (
+                completed_at,
+                status,
+                cities_processed,
+                cities_failed,
+                duration_seconds,
+                error_message,
+                run_id,
+            ),
+        )
+
+    connection.commit()

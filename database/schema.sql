@@ -41,3 +41,15 @@ CREATE TABLE air_quality_observations (
 
     CONSTRAINT unique_air_quality_city_time UNIQUE (city_id, observed_at)
 );
+
+CREATE TABLE pipeline_runs (
+    id SERIAL PRIMARY KEY,
+    started_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP,
+    status VARCHAR(20) NOT NULL,
+    cities_processed INTEGER NOT NULL DEFAULT 0,
+    cities_failed INTEGER NOT NULL DEFAULT 0,
+    duration_seconds DOUBLE PRECISION,
+    error_message TEXT
+);
+

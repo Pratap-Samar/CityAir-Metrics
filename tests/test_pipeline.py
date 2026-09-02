@@ -112,12 +112,24 @@ def test_pipeline_continues_when_city_fails(monkeypatch):
     pipeline,
     "validate_weather_freshness",
     lambda observation: None,
-)
+    )
 
     monkeypatch.setattr(
         pipeline,
         "validate_air_quality_freshness",
         lambda observation: None,
+    )
+
+    monkeypatch.setattr(
+        pipeline,
+        "create_pipeline_run",
+        lambda started_at, connection: 1,
+    )
+
+    monkeypatch.setattr(
+        pipeline,
+        "complete_pipeline_run",
+        lambda **kwargs: None,
     )
 
     messages = []
@@ -158,3 +170,4 @@ def test_pipeline_continues_when_city_fails(monkeypatch):
         in message
         for message in messages
     )
+

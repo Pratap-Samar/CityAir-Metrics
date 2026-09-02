@@ -5,6 +5,8 @@ from database.repositories import (
     get_or_create_city,
     save_weather_observation,
     save_air_quality_observation,
+    create_pipeline_run,
+    complete_pipeline_run,
 )
 from ingestion.models import (
     WeatherObservation,
@@ -76,6 +78,62 @@ def test_repository_integration():
         )
 
         assert air_quality_id is not None
+
+    finally:
+        connection.close()
+
+def test_pipeline_run_repository():
+    connection = get_connection()
+
+    try:
+        started_at = datetime(2026, 9, 2, 10, 0)
+
+        run_id = create_pipeline_run(
+            started_at,
+            connection,
+        )
+
+        assert run_id is not None
+
+        completed_at = datetime(2026, 9, 2, 10, 0, 8)
+
+        complete_pipeline_run(
+            run_id=run_id,
+            completed_at=completed_at,
+            status="SUCCESS",
+            cities_processed=5,
+            cities_failed=0,
+            duration_seconds=8.0,
+            connection=connection,
+        )
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    started_at,
+                    completed_at,
+                    status,
+                    cities_processed,
+                    cities_failed,
+                    duration_seconds,
+                    error_message
+                FROM pipeline_runs
+                WHERE id = %s;
+                """,
+                (run_id,),
+            )
+
+            row = cursor.fetchone()
+
+        assert row is not None
+        assert row[0] == started_at
+        assert row[1] == completed_at
+        assert row[2] == "SUCCESS"
+        assert row[3] == 5
+        assert row[4] == 0
+        assert row[5] == 8.0
+        assert row[6] is None
 
     finally:
         connection.close()
