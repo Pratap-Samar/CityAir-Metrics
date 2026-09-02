@@ -3,7 +3,9 @@ CREATE TABLE cities (
     name VARCHAR(100) NOT NULL,
     country VARCHAR(100) NOT NULL,
     latitude DOUBLE PRECISION NOT NULL,
-    longitude DOUBLE PRECISION NOT NULL
+    longitude DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT unique_city_country UNIQUE (name, country)
 );
 
 
@@ -18,7 +20,9 @@ CREATE TABLE weather_observations (
     precipitation_mm DOUBLE PRECISION,
     weather_code INTEGER,
     wind_speed_kmh DOUBLE PRECISION,
-    wind_direction_degrees DOUBLE PRECISION
+    wind_direction_degrees DOUBLE PRECISION,
+
+    CONSTRAINT unique_weather_city_time UNIQUE (city_id, observed_at)
 );
 
 
@@ -33,5 +37,7 @@ CREATE TABLE air_quality_observations (
     nitrogen_dioxide DOUBLE PRECISION,
     sulphur_dioxide DOUBLE PRECISION,
     ozone DOUBLE PRECISION,
-    us_aqi DOUBLE PRECISION
+    us_aqi DOUBLE PRECISION,
+
+    CONSTRAINT unique_air_quality_city_time UNIQUE (city_id, observed_at)
 );
