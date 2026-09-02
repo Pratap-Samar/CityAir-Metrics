@@ -8,6 +8,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cityair_user
+          POSTGRES_PASSWORD: cityair_password
+          POSTGRES_DB: cityair
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U cityair_user -d cityair"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      POSTGRES_USER: cityair_user
+      POSTGRES_PASSWORD: cityair_password
+      POSTGRES_DB: cityair
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,6 +41,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Initialize database schema
+        run: |
+          PGPASSWORD="$POSTGRES_PASSWORD" psql \
+            -h localhost \
+            -U "$POSTGRES_USER" \
+            -d "$POSTGRES_DB" \
+            -f database/schema.sql
 
       - name: Run tests
         run: |
