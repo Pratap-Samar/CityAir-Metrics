@@ -194,3 +194,22 @@ def complete_pipeline_run(
         )
 
     connection.commit()
+
+def get_cities(connection):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                id,
+                name,
+                country,
+                latitude,
+                longitude
+            FROM cities
+            ORDER BY name;
+            """
+        )
+
+        return cursor.fetchall()
+
+

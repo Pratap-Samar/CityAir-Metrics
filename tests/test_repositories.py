@@ -7,6 +7,7 @@ from database.repositories import (
     save_air_quality_observation,
     create_pipeline_run,
     complete_pipeline_run,
+    get_cities,
 )
 from ingestion.models import (
     WeatherObservation,
@@ -134,6 +135,42 @@ def test_pipeline_run_repository():
         assert row[4] == 0
         assert row[5] == 8.0
         assert row[6] is None
+
+    finally:
+        connection.close()
+
+def test_get_cities():
+    connection = get_connection()
+
+    try:
+        city = {
+            "name": "Test City",
+            "country": "Test Country",
+            "latitude": 10.1234,
+            "longitude": 20.5678,
+        }
+
+        get_or_create_city(
+            city,
+            connection,
+        )
+
+        cities = get_cities(connection)
+
+        assert cities
+
+        test_city = next(
+            city
+            for city in cities
+            if city[1] == "Test City"
+            and city[2] == "Test Country"
+        )
+
+        assert test_city[0] is not None
+        assert test_city[1] == "Test City"
+        assert test_city[2] == "Test Country"
+        assert test_city[3] == 10.1234
+        assert test_city[4] == 20.5678
 
     finally:
         connection.close()
