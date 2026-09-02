@@ -20,7 +20,8 @@ def test_transform_weather():
             "weather_code": 3,
             "wind_speed_10m": 4.9,
             "wind_direction_10m": 184,
-        }
+        },
+        "utc_offset_seconds": 19800,
     }
 
     observation = transform_weather(city,data)

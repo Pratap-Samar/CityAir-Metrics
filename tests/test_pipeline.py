@@ -108,6 +108,18 @@ def test_pipeline_continues_when_city_fails(monkeypatch):
         fake_save_air_quality_observation,
     )
 
+    monkeypatch.setattr(
+    pipeline,
+    "validate_weather_freshness",
+    lambda observation: None,
+)
+
+    monkeypatch.setattr(
+        pipeline,
+        "validate_air_quality_freshness",
+        lambda observation: None,
+    )
+
     messages = []
 
     class FakeLogger:

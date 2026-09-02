@@ -1,14 +1,26 @@
+from datetime import datetime, timedelta, timezone
 from ingestion.models import WeatherObservation, AirQualityObservation
 
 def transform_weather(city, data):
     current = data["current"]
+
+    timezone_offset = data["utc_offset_seconds"]
+
+    observed_at = datetime.fromisoformat(
+        current["time"]
+    )
+
+    observed_at = (
+        observed_at
+        - timedelta(seconds=timezone_offset)
+    ).replace(tzinfo=timezone.utc)
 
     Observation = WeatherObservation(
         city=city["name"],
         country=city["country"],
         latitude=city["latitude"],
         longitude=city["longitude"],
-        observed_at=current["time"],
+        observed_at=observed_at,
         temperature_c=current.get("temperature_2m"),
         humidity_percent=current.get("relative_humidity_2m"),
         apparent_temperature_c=current.get("apparent_temperature"),
@@ -21,12 +33,24 @@ def transform_weather(city, data):
 
 def transform_air_quality(city, data):
     current = data["current"]
+
+    timezone_offset = data["utc_offset_seconds"]
+
+    observed_at = datetime.fromisoformat(
+        current["time"]
+    )
+
+    observed_at = (
+        observed_at
+        - timedelta(seconds=timezone_offset)
+    ).replace(tzinfo=timezone.utc)
+
     observation = AirQualityObservation(
         city=city["name"],
         country=city["country"],
         latitude=city["latitude"],
         longitude=city["longitude"],
-        observed_at=current["time"],
+        observed_at=observed_at,
         pm10=current.get("pm10"),
         pm2_5=current.get("pm2_5"),
         carbon_monoxide=current.get("carbon_monoxide"),

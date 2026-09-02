@@ -20,7 +20,8 @@ def test_transform_air_quality():
             "sulphur_dioxide": 46.6,
             "ozone": 213.0,
             "us_aqi": 171,
-        }
+        },
+        "utc_offset_seconds": 19800,
     }
 
     observation = transform_air_quality(city, data)
