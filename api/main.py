@@ -2,8 +2,10 @@ from fastapi import FastAPI
 
 from database.connection import get_connection
 from database.repositories import get_cities
-from processor.analytics import get_latest_weather_by_city
-
+from processor.analytics import (
+    get_latest_weather_by_city,
+    get_latest_air_quality_by_city
+)
 app = FastAPI(
     title="CityAir Metrics API",
     description="API for city weather and air-quality data",
@@ -60,5 +62,30 @@ def latest_weather():
             for row in rows
         ]
 
+    finally:
+        connection.close()
+
+@app.get("/air-quality/latest")
+def latest_air_quality():
+    connection = get_connection()
+
+    try:
+        rows = get_latest_air_quality_by_city(connection)
+        return [
+            {
+                "city_id": row[0],
+                "name": row[1],
+                "country": row[2],
+                "observed_at": row[3],
+                "pm10": row[4],
+                "pm2_5": row[5],
+                "carbon_monoxide": row[6],
+                "nitrogen_dioxide": row[7],
+                "sulphur_dioxide": row[8],
+                "ozone": row[9],
+                "us_aqi": row[10],
+            }
+            for row in rows
+        ]
     finally:
         connection.close()

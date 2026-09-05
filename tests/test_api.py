@@ -3,10 +3,14 @@ from datetime import datetime
 
 from api.main import app
 from database.connection import get_connection
-from ingestion.models import WeatherObservation
+from ingestion.models import (
+    WeatherObservation,
+    AirQualityObservation,
+)
 from database.repositories import (
     get_or_create_city,
     save_weather_observation,
+    save_air_quality_observation,
 )
 
 client = TestClient(app)
@@ -110,3 +114,66 @@ def test_get_latest_weather():
     assert test_city["weather_code"] == 1
     assert test_city["wind_speed_kmh"] == 8.0
     assert test_city["wind_direction_degrees"] == 180.0
+
+def test_get_latest_air_quality():
+    connection = get_connection()
+
+    try:
+        city = {
+            "name": "Test Air Quality City",
+            "country": "Test Air Quality Country",
+            "latitude": 13.3456,
+            "longitude": 79.9012,
+        }
+
+        city_id = get_or_create_city(
+            city,
+            connection,
+        )
+
+        air_quality = AirQualityObservation(
+            city="Test Air Quality City",
+            country="Test Air Quality Country",
+            latitude=13.3456,
+            longitude=79.9012,
+            observed_at=datetime(2026, 9, 2, 12, 0),
+            pm10=20.0,
+            pm2_5=10.0,
+            carbon_monoxide=300.0,
+            nitrogen_dioxide=10.0,
+            sulphur_dioxide=5.0,
+            ozone=100.0,
+            us_aqi=50.0,
+        )
+
+        save_air_quality_observation(
+            air_quality,
+            city_id,
+            connection,
+        )
+
+    finally:
+        connection.close()
+
+    response = client.get("/air-quality/latest")
+
+    assert response.status_code == 200
+
+    air_quality_data = response.json()
+
+    assert isinstance(air_quality_data, list)
+
+    test_city = next(
+        item
+        for item in air_quality_data
+        if item["name"] == "Test Air Quality City"
+        and item["country"] == "Test Air Quality Country"
+    )
+
+    assert test_city["pm10"] == 20.0
+    assert test_city["pm2_5"] == 10.0
+    assert test_city["carbon_monoxide"] == 300.0
+    assert test_city["nitrogen_dioxide"] == 10.0
+    assert test_city["sulphur_dioxide"] == 5.0
+    assert test_city["ozone"] == 100.0
+    assert test_city["us_aqi"] == 50.0
