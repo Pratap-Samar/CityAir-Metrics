@@ -11,6 +11,7 @@ from database.repositories import (
     get_or_create_city,
     save_weather_observation,
     save_air_quality_observation,
+    save_air_quality_observation,
 )
 
 client = TestClient(app)
@@ -177,3 +178,88 @@ def test_get_latest_air_quality():
     assert test_city["sulphur_dioxide"] == 5.0
     assert test_city["ozone"] == 100.0
     assert test_city["us_aqi"] == 50.0
+
+
+def test_get_analytics():
+    connection = get_connection()
+
+    try:
+        city = {
+            "name": "Test Analytics City",
+            "country": "Test Analytics Country",
+            "latitude": 14.3456,
+            "longitude": 80.9012,
+        }
+
+        city_id = get_or_create_city(
+            city,
+            connection,
+        )
+
+        weather = WeatherObservation(
+            city="Test Analytics City",
+            country="Test Analytics Country",
+            latitude=14.3456,
+            longitude=80.9012,
+            observed_at=datetime(2026, 9, 2, 12, 0),
+            temperature_c=31.0,
+            humidity_percent=70.0,
+            apparent_temperature_c=33.0,
+            precipitation_mm=1.0,
+            weather_code=2,
+            wind_speed_kmh=10.0,
+            wind_direction_degrees=200.0,
+        )
+
+        save_weather_observation(
+            weather,
+            city_id,
+            connection,
+        )
+
+        air_quality = AirQualityObservation(
+            city="Test Analytics City",
+            country="Test Analytics Country",
+            latitude=14.3456,
+            longitude=80.9012,
+            observed_at=datetime(2026, 9, 2, 12, 0),
+            pm10=25.0,
+            pm2_5=12.0,
+            carbon_monoxide=350.0,
+            nitrogen_dioxide=15.0,
+            sulphur_dioxide=6.0,
+            ozone=90.0,
+            us_aqi=55.0,
+        )
+
+        save_air_quality_observation(
+            air_quality,
+            city_id,
+            connection,
+        )
+
+    finally:
+        connection.close()
+
+    response = client.get("/analytics")
+
+    assert response.status_code == 200
+
+    analytics_data = response.json()
+
+    assert isinstance(analytics_data, list)
+
+    test_city = next(
+        item
+        for item in analytics_data
+        if item["name"] == "Test Analytics City"
+        and item["country"] == "Test Analytics Country"
+    )
+
+    assert test_city["weather"]["temperature_c"] == 31.0
+    assert test_city["weather"]["humidity_percent"] == 70.0
+    assert test_city["weather"]["weather_code"] == 2
+
+    assert test_city["air_quality"]["pm10"] == 25.0
+    assert test_city["air_quality"]["pm2_5"] == 12.0
+    assert test_city["air_quality"]["us_aqi"] == 55.0
