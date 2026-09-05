@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from datetime import datetime
 
 from database.connection import get_connection
 from database.repositories import get_cities
@@ -7,18 +10,94 @@ from processor.analytics import (
     get_latest_air_quality_by_city,
     get_latest_city_snapshot,
 )
+
+
+class CityResponse(BaseModel):
+    id: int
+    name: str
+    country: str
+    latitude: float
+    longitude: float
+
+class WeatherResponse(BaseModel):
+    city_id: int
+    name: str
+    country: str
+    observed_at: datetime
+    temperature_c: float | None
+    humidity_percent: float | None
+    apparent_temperature_c: float | None
+    precipitation_mm: float | None
+    weather_code: int | None
+    wind_speed_kmh: float | None
+    wind_direction_degrees: float | None
+
+
+class AirQualityResponse(BaseModel):
+    city_id: int
+    name: str
+    country: str
+    observed_at: datetime
+    pm10: float | None
+    pm2_5: float | None
+    carbon_monoxide: float | None
+    nitrogen_dioxide: float | None
+    sulphur_dioxide: float | None
+    ozone: float | None
+    us_aqi: float | None
+
+
+class AnalyticsWeatherResponse(BaseModel):
+    observed_at: datetime | None
+    temperature_c: float | None
+    humidity_percent: float | None
+    apparent_temperature_c: float | None
+    precipitation_mm: float | None
+    weather_code: int | None
+    wind_speed_kmh: float | None
+    wind_direction_degrees: float | None
+
+
+class AnalyticsAirQualityResponse(BaseModel):
+    observed_at: datetime | None
+    pm10: float | None
+    pm2_5: float | None
+    carbon_monoxide: float | None
+    nitrogen_dioxide: float | None
+    sulphur_dioxide: float | None
+    ozone: float | None
+    us_aqi: float | None
+
+
+class AnalyticsResponse(BaseModel):
+    city_id: int
+    name: str
+    country: str
+    weather: AnalyticsWeatherResponse
+    air_quality: AnalyticsAirQualityResponse
+
+
 app = FastAPI(
     title="CityAir Metrics API",
     description="API for city weather and air-quality data",
     version="1.0.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+#===================API ENDPOINTS=======================
 @app.get("/")
 def root():
     return {"message": "CityAir Metrics API"}
 
 
-@app.get("/cities")
+@app.get("/cities", response_model=list[CityResponse])
 def cities():
     connection = get_connection()
 
@@ -39,7 +118,7 @@ def cities():
     finally:
         connection.close()
 
-@app.get("/weather/latest")
+@app.get("/weather/latest", response_model=list[WeatherResponse])
 def latest_weather():
     connection = get_connection()
 
@@ -66,7 +145,7 @@ def latest_weather():
     finally:
         connection.close()
 
-@app.get("/air-quality/latest")
+@app.get("/air-quality/latest", response_model=list[AirQualityResponse],)
 def latest_air_quality():
     connection = get_connection()
 
@@ -91,7 +170,7 @@ def latest_air_quality():
     finally:
         connection.close()
 
-@app.get("/analytics")
+@app.get("/analytics", response_model=list[AnalyticsResponse])
 def analytics():
     connection = get_connection()
 
@@ -129,3 +208,6 @@ def analytics():
 
     finally:
         connection.close()
+
+
+
