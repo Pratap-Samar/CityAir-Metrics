@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
+import pytest
 
 from database.connection import get_connection
 from database.repositories import get_or_create_city
 from processor.analytics import (
+    _calculate_trend,
     get_latest_weather_by_city,
     get_latest_air_quality_by_city,
     get_average_weather_by_city,
@@ -13,6 +15,68 @@ from processor.analytics import (
     get_weather_history_by_city,
     get_air_quality_history_by_city,
 )
+
+def test_calculate_trend_increasing():
+    result = _calculate_trend(40.0, 50.0)
+
+    assert result[0] == 10.0
+    assert result[1] == 25.0
+    assert result[2] == "increasing"
+
+def test_calculate_trend_decreasing():
+    result = _calculate_trend(50.0, 40.0)
+
+    assert result[0] == -10.0
+    assert result[1] == -20.0
+    assert result[2] == "decreasing"
+
+def test_calculate_trend_stable():
+    result = _calculate_trend(50.0, 50.0)
+
+    assert result[0] == 0.0
+    assert result[1] == 0.0
+    assert result[2] == "stable"
+
+
+def test_calculate_trend_missing_previous_average():
+    result = _calculate_trend(None, 50.0)
+
+    assert result == (None, None, None)
+
+def test_calculate_trend_missing_recent_average():
+    result = _calculate_trend(50.0, None)
+
+    assert result == (None, None, None)
+def test_calculate_trend_stable_within_two_percent():
+    result = _calculate_trend(100.0, 101.0)
+
+    assert result[0] == 1.0
+    assert result[1] == 1.0
+    assert result[2] == "stable"
+
+
+def test_calculate_trend_increasing_above_two_percent():
+    result = _calculate_trend(100.0, 103.0)
+
+    assert result[0] == 3.0
+    assert result[1] == 3.0
+    assert result[2] == "increasing"
+
+
+def test_calculate_trend_decreasing_below_two_percent():
+    result = _calculate_trend(100.0, 97.0)
+
+    assert result[0] == -3.0
+    assert result[1] == -3.0
+    assert result[2] == "decreasing"
+
+
+def test_calculate_trend_zero_previous_average():
+    result = _calculate_trend(0.0, 10.0)
+
+    assert result[0] == 10.0
+    assert result[1] is None
+    assert result[2] == "increasing"
 
 
 def test_get_latest_weather_by_city():
@@ -413,7 +477,8 @@ def test_get_temperature_trend_by_city():
         assert row[3] == 21.0
         assert row[4] == 27.0
         assert row[5] == 6.0
-        assert row[6] == "increasing"
+        assert row[6] == pytest.approx(28.5714285714)
+        assert row[7] == "increasing"
 
     finally:
         connection.rollback()
@@ -491,7 +556,8 @@ def test_get_pm25_trend_by_city():
         assert row[3] == 25.0
         assert row[4] == 55.0
         assert row[5] == 30.0
-        assert row[6] == "increasing"
+        assert row[6] == pytest.approx(120.0)
+        assert row[7] == "increasing"
 
     finally:
         connection.rollback()

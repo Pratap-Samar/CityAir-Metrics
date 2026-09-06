@@ -31,21 +31,31 @@ def _validate_history_metric(metric):
 # Trend helpers
 # ============================================================================
 
-
 def _calculate_trend(previous_average, recent_average):
     if previous_average is None or recent_average is None:
-        return None, None
+        return None, None, None
 
     change = recent_average - previous_average
 
-    if change > 0:
+    if previous_average == 0:
+        percentage_change = None
+    else:
+        percentage_change = (
+            change / abs(previous_average)
+        ) * 100
+
+    if percentage_change is None:
+        direction = "increasing" if change > 0 else (
+            "decreasing" if change < 0 else "stable"
+        )
+    elif percentage_change > 2:
         direction = "increasing"
-    elif change < 0:
+    elif percentage_change < -2:
         direction = "decreasing"
     else:
         direction = "stable"
 
-    return change, direction
+    return change, percentage_change, direction
 
 
 # ============================================================================
@@ -510,7 +520,7 @@ def get_temperature_trend_by_city(connection, hours=24):
             previous_average = row[3]
             recent_average = row[4]
 
-            change, direction = _calculate_trend(
+            change, percentage_change, direction = _calculate_trend(
                 previous_average,
                 recent_average,
             )
@@ -523,6 +533,7 @@ def get_temperature_trend_by_city(connection, hours=24):
                     previous_average,
                     recent_average,
                     change,
+                    percentage_change,
                     direction,
                 )
             )
@@ -575,7 +586,7 @@ def get_pm25_trend_by_city(connection, hours=24):
             previous_average = row[3]
             recent_average = row[4]
 
-            change, direction = _calculate_trend(
+            change, percentage_change, direction = _calculate_trend(
                 previous_average,
                 recent_average,
             )
@@ -588,6 +599,7 @@ def get_pm25_trend_by_city(connection, hours=24):
                     previous_average,
                     recent_average,
                     change,
+                    percentage_change,
                     direction,
                 )
             )
