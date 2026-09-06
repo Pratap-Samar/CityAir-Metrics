@@ -1,3 +1,4 @@
+#backend and OS 
 .venv/
 __pycache__/
 .pytest_cache/
@@ -11,3 +12,4 @@ project-idea.md
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+Frontend_Product_and_Data_Spec.md

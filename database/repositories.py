@@ -213,3 +213,41 @@ def get_cities(connection):
         return cursor.fetchall()
 
 
+def get_city(connection, city_id):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                id,
+                name,
+                country,
+                latitude,
+                longitude
+            FROM cities
+            WHERE id = %s;
+            """,
+            (city_id,)
+        )
+        return cursor.fetchone()
+
+def get_latest_pipeline_run(connection):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT
+                id,
+                started_at,
+                completed_at,
+                status,
+                cities_processed,
+                cities_failed,
+                duration_seconds,
+                error_message
+            FROM pipeline_runs
+            ORDER BY started_at DESC
+            LIMIT 1;
+            """
+        )
+        return cursor.fetchone()
+
+

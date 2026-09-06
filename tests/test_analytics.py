@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from database.connection import get_connection
+from database.repositories import get_or_create_city
 from processor.analytics import (
     get_latest_weather_by_city,
     get_latest_air_quality_by_city,
@@ -9,6 +10,8 @@ from processor.analytics import (
     get_temperature_trend_by_city,
     get_pm25_trend_by_city,
     get_latest_city_snapshot,
+    get_weather_history_by_city,
+    get_air_quality_history_by_city,
 )
 
 
@@ -631,4 +634,120 @@ def test_get_latest_city_snapshot():
             )
 
         connection.commit()
+        connection.close()
+
+
+def test_get_weather_history_by_city():
+    connection = get_connection()
+
+    try:
+        city_id = get_or_create_city(
+            {
+                "name": "History Test City",
+                "country": "Test Country",
+                "latitude": 10.0,
+                "longitude": 20.0,
+            },
+            connection,
+        )
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO weather_observations (
+                    city_id,
+                    observed_at,
+                    temperature_c,
+                    humidity_percent,
+                    apparent_temperature_c,
+                    precipitation_mm,
+                    weather_code,
+                    wind_speed_kmh,
+                    wind_direction_degrees
+                )
+                VALUES
+                    (%s, NOW() - INTERVAL '2 hours', 20.0, 60.0, 19.0, 0.0, 1, 10.0, 180.0),
+                    (%s, NOW() - INTERVAL '1 hour', 21.0, 62.0, 20.0, 0.5, 2, 11.0, 190.0)
+                ON CONFLICT (city_id, observed_at) DO NOTHING;
+                """,
+                (city_id, city_id),
+            )
+
+        connection.commit()
+
+        rows = get_weather_history_by_city(
+            connection,
+            city_id,
+            hours=24,
+        )
+
+        assert len(rows) >= 2
+
+        timestamps = [row[0] for row in rows]
+        assert timestamps == sorted(timestamps)
+
+        temperatures = [row[1] for row in rows]
+
+        assert 20.0 in temperatures
+        assert 21.0 in temperatures
+
+    finally:
+        connection.close()
+
+
+def test_get_air_quality_history_by_city():
+    connection = get_connection()
+
+    try:
+        city_id = get_or_create_city(
+            {
+                "name": "AQ History Test City",
+                "country": "Test Country",
+                "latitude": 11.0,
+                "longitude": 21.0,
+            },
+            connection,
+        )
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO air_quality_observations (
+                    city_id,
+                    observed_at,
+                    pm10,
+                    pm2_5,
+                    carbon_monoxide,
+                    nitrogen_dioxide,
+                    sulphur_dioxide,
+                    ozone,
+                    us_aqi
+                )
+                VALUES
+                    (%s, NOW() - INTERVAL '2 hours', 30.0, 15.0, 200.0, 20.0, 5.0, 80.0, 60.0),
+                    (%s, NOW() - INTERVAL '1 hour', 32.0, 17.0, 210.0, 22.0, 6.0, 82.0, 65.0)
+                ON CONFLICT (city_id, observed_at) DO NOTHING;
+                """,
+                (city_id, city_id),
+            )
+
+        connection.commit()
+
+        rows = get_air_quality_history_by_city(
+            connection,
+            city_id,
+            hours=24,
+        )
+
+        assert len(rows) >= 2
+
+        timestamps = [row[0] for row in rows]
+        assert timestamps == sorted(timestamps)
+
+        pm25_values = [row[2] for row in rows]
+
+        assert 15.0 in pm25_values
+        assert 17.0 in pm25_values
+
+    finally:
         connection.close()

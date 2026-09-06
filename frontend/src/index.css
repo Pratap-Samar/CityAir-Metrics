@@ -1,18 +1,54 @@
-:root {
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
-  color: #1f2937;
-  background: #f5f7fa;
+:root {
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Design Tokens - Light Theme (Default) */
+  --bg-color: #f5f7fa;
+  --foreground: #0f172a;
+  --muted-text: #64748b;
+  --panel-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --accent-color: #0284c7; /* restrained blue */
+  --accent-hover: #0369a1;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --danger: #dc2626;
+  --chart-grid: #e2e8f0;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover: #f1f5f9;
+  --sidebar-active: #e0f2fe;
+  --sidebar-active-text: #0284c7;
+  --focus-ring: 0 0 0 2px rgba(2, 132, 199, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  /* Design Tokens - Dark Theme */
+  --bg-color: #0f172a; /* charcoal */
+  --foreground: #f8fafc;
+  --muted-text: #94a3b8;
+  --panel-bg: #1e293b; /* slightly lighter */
+  --border-color: #334155;
+  --accent-color: #38bdf8; /* cyan-ish accent */
+  --accent-hover: #7dd3fc;
+  --success: #4ade80;
+  --warning: #facc15;
+  --danger: #f87171;
+  --chart-grid: #334155;
+  --sidebar-bg: #111827; /* near black */
+  --sidebar-border: #334155;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #0c4a6e;
+  --sidebar-active-text: #38bdf8;
+  --focus-ring: 0 0 0 2px rgba(56, 189, 248, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -23,15 +59,29 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--foreground);
 }
 
 button,
-select {
+select,
+input {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 4px;
 }
 
 #root {
