@@ -32,6 +32,7 @@ def test_get_cities():
             city,
             connection,
         )
+        connection.commit()
     finally:
         connection.close()
 
@@ -89,6 +90,7 @@ def test_get_latest_weather():
             city_id,
             connection,
         )
+        connection.commit()
 
     finally:
         connection.close()
@@ -152,6 +154,7 @@ def test_get_latest_air_quality():
             city_id,
             connection,
         )
+        connection.commit()
 
     finally:
         connection.close()
@@ -237,6 +240,7 @@ def test_get_analytics():
             city_id,
             connection,
         )
+        connection.commit()
 
     finally:
         connection.close()
@@ -325,6 +329,7 @@ def test_weather_history():
             city_id,
             connection,
         )
+        connection.commit()
 
     finally:
         connection.close()
@@ -406,6 +411,7 @@ def test_air_quality_history():
             city_id,
             connection,
         )
+        connection.commit()
 
     finally:
         connection.close()

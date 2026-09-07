@@ -26,8 +26,6 @@ def get_or_create_city(city, connection):
 
         city_id = cursor.fetchone()[0]
 
-    connection.commit()
-
     return city_id
 
 
@@ -80,8 +78,6 @@ def save_weather_observation(
 
         observation_id = cursor.fetchone()[0]
 
-    connection.commit()
-
     return observation_id
 
 
@@ -133,8 +129,6 @@ def save_air_quality_observation(
         )
 
         observation_id = cursor.fetchone()[0]
-
-    connection.commit()
 
     return observation_id
 

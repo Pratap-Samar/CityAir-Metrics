@@ -100,6 +100,7 @@ def run_pipeline():
                 )
 
                 cities_processed += 1
+                connection.commit()
 
             except Exception:
                 connection.rollback()
