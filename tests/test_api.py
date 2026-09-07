@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from api.main import app
 from database.connection import get_connection
@@ -264,9 +264,12 @@ def test_get_analytics():
     assert test_city["air_quality"]["pm2_5"] == 12.0
     assert test_city["air_quality"]["us_aqi"] == 55.0
 
-    
+
 def test_weather_history():
     connection = get_connection()
+    with connection.cursor() as c:
+        c.execute("TRUNCATE TABLE weather_observations CASCADE;")
+    connection.commit()
 
     try:
         city = {
@@ -286,7 +289,7 @@ def test_weather_history():
             country="Test Weather History Country",
             latitude=15.3456,
             longitude=81.9012,
-            observed_at=datetime(2026, 9, 6, 10, 0),
+            observed_at=datetime.now() - timedelta(hours=2),
             temperature_c=28.0,
             humidity_percent=60.0,
             apparent_temperature_c=29.0,
@@ -301,7 +304,7 @@ def test_weather_history():
             country="Test Weather History Country",
             latitude=15.3456,
             longitude=81.9012,
-            observed_at=datetime(2026, 9, 6, 11, 0),
+            observed_at=datetime.now() - timedelta(hours=1),
             temperature_c=29.0,
             humidity_percent=62.0,
             apparent_temperature_c=30.0,
@@ -345,6 +348,9 @@ def test_weather_history():
 
 def test_air_quality_history():
     connection = get_connection()
+    with connection.cursor() as c:
+        c.execute("TRUNCATE TABLE air_quality_observations CASCADE;")
+    connection.commit()
 
     try:
         city = {
@@ -364,7 +370,7 @@ def test_air_quality_history():
             country="Test Air History Country",
             latitude=16.3456,
             longitude=82.9012,
-            observed_at=datetime(2026, 9, 6, 10, 0),
+            observed_at=datetime.now() - timedelta(hours=2),
             pm10=20.0,
             pm2_5=10.0,
             carbon_monoxide=300.0,
@@ -379,7 +385,7 @@ def test_air_quality_history():
             country="Test Air History Country",
             latitude=16.3456,
             longitude=82.9012,
-            observed_at=datetime(2026, 9, 6, 11, 0),
+            observed_at=datetime.now() - timedelta(hours=1),
             pm10=25.0,
             pm2_5=15.0,
             carbon_monoxide=320.0,
@@ -438,3 +444,91 @@ def test_pipeline_status():
     assert "cities_processed" in data
     assert "cities_failed" in data
     assert isinstance(data["is_active"], bool)
+def test_dashboard_summary():
+    response = client.get("/dashboard/summary")
+    assert response.status_code == 200
+    data = response.json()
+    assert "total_cities" in data
+    assert "average_temperature_c" in data
+    assert "average_aqi" in data
+
+def test_dashboard_map():
+    response = client.get("/dashboard/map")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    if len(data) > 0:
+        assert "city_id" in data[0]
+        assert "latitude" in data[0]
+        assert "longitude" in data[0]
+        assert "temperature_c" in data[0]
+        assert "aqi" in data[0]
+
+def test_dashboard_trends_success():
+    connection = get_connection()
+    try:
+        city_id = get_or_create_city(
+            {"name": "Trends API City", "country": "Test", "latitude": 0.0, "longitude": 0.0},
+            connection
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    response = client.get(f"/dashboard/trends/{city_id}?metric=aqi&period=24h")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+
+def test_dashboard_trends_invalid_city():
+    response = client.get("/dashboard/trends/999999?metric=aqi&period=24h")
+    assert response.status_code == 404
+
+def test_dashboard_trends_invalid_metric():
+    connection = get_connection()
+    try:
+        city_id = get_or_create_city({"name": "Test", "country": "Test", "latitude": 0, "longitude": 0}, connection)
+        connection.commit()
+    finally:
+        connection.close()
+
+    response = client.get(f"/dashboard/trends/{city_id}?metric=invalid&period=24h")
+    assert response.status_code == 400
+
+def test_dashboard_trends_invalid_period():
+    connection = get_connection()
+    try:
+        city_id = get_or_create_city({"name": "Test", "country": "Test", "latitude": 0, "longitude": 0}, connection)
+        connection.commit()
+    finally:
+        connection.close()
+
+    response = client.get(f"/dashboard/trends/{city_id}?metric=aqi&period=99d")
+    assert response.status_code == 400
+
+def test_dashboard_changes_success():
+    response = client.get("/dashboard/changes?metric=aqi")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+
+def test_dashboard_changes_invalid_metric():
+    response = client.get("/dashboard/changes?metric=temperature")
+    assert response.status_code == 400
+
+def test_dashboard_rankings_success():
+    response = client.get("/dashboard/rankings?metric=aqi&period=24h")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+
+def test_dashboard_rankings_invalid_metric():
+    response = client.get("/dashboard/rankings?metric=invalid&period=24h")
+    assert response.status_code == 400
+
+def test_dashboard_pipeline():
+    response = client.get("/dashboard/pipeline")
+    assert response.status_code == 200
+    data = response.json()
+    assert "status" in data
+    assert "cities_processed" in data

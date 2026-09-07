@@ -864,7 +864,7 @@ def test_get_dashboard_summary():
             c2 = cursor.fetchone()[0]
 
             # City 1: latest weather 20C, prev weather 10C
-            cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c1, 20.0))
+            cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c1, 20.0))
             cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c1, 10.0))
 
             # City 2: latest weather 30C, prev weather 10C
@@ -872,7 +872,7 @@ def test_get_dashboard_summary():
             cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '25 hours', %s);", (c2, 10.0))
 
             # City 1: latest AQI 100, prev 50
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c1, 100.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c1, 100.0))
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c1, 50.0))
 
             # City 2: latest AQI 200, prev 50
@@ -977,8 +977,8 @@ def test_get_time_series_trends():
             c1 = cursor.fetchone()[0]
 
             # 24h: hourly data (2 observations in same hour should aggregate)
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c1, 100.0))
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours' - INTERVAL '10 minutes', %s);", (c1, 150.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c1, 100.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes' - INTERVAL '10 minutes', %s);", (c1, 150.0))
 
             # 7d: daily data
             cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_DATE - INTERVAL '1 days', %s);", (c1, 20.0))
@@ -1019,11 +1019,11 @@ def test_get_biggest_changes():
 
             # City A: prev 50, curr 100 -> +50, +100%
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c_a, 50.0))
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c_a, 100.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c_a, 100.0))
 
             # City B: prev 100, curr 250 -> +150, +150%
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c_b, 100.0))
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c_b, 250.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c_b, 250.0))
 
         connection.commit()
 
@@ -1059,10 +1059,10 @@ def test_get_city_rankings():
             c2 = cursor.fetchone()[0]
 
             # City 1 AQI 150
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c1, 150.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c1, 150.0))
 
             # City 2 AQI 100
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c2, 100.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c2, 100.0))
 
         connection.commit()
 
@@ -1195,10 +1195,10 @@ def test_biggest_changes_zero_previous():
             c_norm = cursor.fetchone()[0]
 
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c_zero, 0.0))
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c_zero, 50.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c_zero, 50.0))
 
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c_norm, 10.0))
-            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '2 hours', %s);", (c_norm, 20.0))
+            cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, DATE_TRUNC('hour', CURRENT_TIMESTAMP) - INTERVAL '2 hours' + INTERVAL '10 minutes', %s);", (c_norm, 20.0))
 
         connection.commit()
 

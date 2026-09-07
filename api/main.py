@@ -18,6 +18,12 @@ from processor.analytics import (
     get_latest_weather_by_city,
     VALID_HISTORY_METRICS,
     VALID_HISTORY_PERIODS,
+    get_dashboard_summary,
+    get_dashboard_map_data,
+    get_time_series_trends,
+    get_biggest_changes,
+    get_city_rankings,
+    get_dashboard_pipeline_status,
 )
 
 
@@ -722,5 +728,91 @@ def pipeline_status():
             "cities_failed": run[5],
         }
 
+    finally:
+        connection.close()
+
+# ============================================================================
+# Dashboard endpoints
+# ============================================================================
+
+@app.get("/dashboard/summary")
+def dashboard_summary():
+    connection = get_connection()
+    try:
+        return get_dashboard_summary(connection)
+    finally:
+        connection.close()
+
+@app.get("/dashboard/map")
+def dashboard_map():
+    connection = get_connection()
+    try:
+        return get_dashboard_map_data(connection)
+    finally:
+        connection.close()
+
+@app.get("/dashboard/trends/{city_id}")
+def dashboard_trends(
+    city_id: int,
+    metric: str = Query("aqi", description="aqi or temperature"),
+    period: str = Query("24h", description="24h, 7d, or 30d")
+):
+    connection = get_connection()
+    try:
+        city = get_city(connection, city_id)
+        if not city:
+            raise HTTPException(status_code=404, detail="City not found")
+
+        if metric not in ("aqi", "temperature"):
+            raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi or temperature.")
+        if period not in ("24h", "7d", "30d"):
+            raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
+
+        return get_time_series_trends(connection, city_id, metric, period)
+    finally:
+        connection.close()
+
+@app.get("/dashboard/changes")
+def dashboard_changes(metric: str = Query("aqi", description="aqi")):
+    connection = get_connection()
+    try:
+        if metric != "aqi":
+            raise HTTPException(status_code=400, detail="Invalid metric. Only aqi is supported.")
+        return get_biggest_changes(connection, metric)
+    finally:
+        connection.close()
+
+@app.get("/dashboard/rankings")
+def dashboard_rankings(
+    metric: str = Query("aqi", description="aqi, pm2_5, or pm10"),
+    period: str = Query("24h", description="24h, 7d, or 30d")
+):
+    connection = get_connection()
+    try:
+        if metric not in ("aqi", "pm2_5", "pm10"):
+            raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi, pm2_5, or pm10.")
+        if period not in ("24h", "7d", "30d"):
+            raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
+
+        return get_city_rankings(connection, metric, period)
+    finally:
+        connection.close()
+
+@app.get("/dashboard/pipeline")
+def dashboard_pipeline():
+    connection = get_connection()
+    try:
+        status = get_dashboard_pipeline_status(connection)
+        if not status:
+            return {
+                "status": "UNKNOWN",
+                "started_at": None,
+                "completed_at": None,
+                "duration_seconds": None,
+                "cities_processed": 0,
+                "cities_failed": 0,
+                "error_message": None
+            }
+        return status
     finally:
         connection.close()
