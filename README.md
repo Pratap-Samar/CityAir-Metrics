@@ -1,22 +1,14 @@
 # CityAir Metrics
 
-CityAir Metrics is an end-to-end data engineering and application project that ingests weather and air-quality data from external APIs, validates and transforms the data, stores it in PostgreSQL, processes it through an analytics layer, and exposes the results through a FastAPI backend and React dashboard.
+CityAir Metrics is a data-engineering and full-stack application that monitors, processes, and visualizes air quality and weather conditions across India's state capitals.
 
-The project also incorporates DevOps practices including Docker-based infrastructure, automated testing, and GitHub Actions CI.
+Features include:
 
----
-
-## What I've Built
-
-- Python data ingestion pipeline for weather and air-quality data
-- Open-Meteo API integration with request retries and timeouts
-- Pydantic-based data models and validation
-- PostgreSQL database with relational constraints and duplicate-safe upserts
-- Pipeline execution tracking and failure handling
 - SQL-based analytics layer
 - FastAPI REST API
-- React + TypeScript dashboard
-- Automated tests with Pytest
+- React + TypeScript dashboard with Recharts and Leaflet Map
+- Seamless Light/Dark Mode UI with dynamic theme-switching
+- Automated tests with Pytest and isolated Test Databases
 - Dockerized PostgreSQL development environment
 - GitHub Actions CI with a PostgreSQL service
 - Frontend-to-backend integration through REST APIs
@@ -32,22 +24,22 @@ The project also incorporates DevOps practices including Docker-based infrastruc
           Weather         Air Quality
                \             /
                 \           /
-                 ▼         ▼
+                 ↓         ↓
                Python Ingestion
                    Pipeline
-                      │
+                      ↓
              Transform + Validate
-                      │
-                      ▼
+                      ↓
+                      ↓
                   PostgreSQL
-                      │
-                      ▼
+                      ↓
+                      ↓
                  Analytics Layer
-                      │
-                      ▼
+                      ↓
+                      ↓
                    FastAPI
-                      │
-                      ▼
+                      ↓
+                      ↓
                React + TypeScript
                    Dashboard
 ```
@@ -61,8 +53,8 @@ The project also incorporates DevOps practices including Docker-based infrastruc
 | Data Engineering | Python, Requests, Pydantic             |
 | Database         | PostgreSQL 16, Psycopg                 |
 | Backend          | FastAPI, Uvicorn                       |
-| Frontend         | React, TypeScript, Vite, CSS           |
-| Testing          | Pytest                                 |
+| Frontend         | React, TypeScript, Vite, CSS, Leaflet, Recharts |
+| Testing          | Pytest, python-dotenv                  |
 | DevOps           | Docker, Docker Compose, GitHub Actions |
 | CI               | GitHub Actions                         |
 | Data Source      | Open-Meteo                             |
@@ -75,15 +67,15 @@ The core pipeline follows:
 
 ```text
 API
- ↓
+ ↳
 Extract
- ↓
+ ↳
 Transform
- ↓
+ ↳
 Validate
- ↓
+ ↳
 Load
- ↓
+ ↳
 Analytics
 ```
 
@@ -151,9 +143,11 @@ GET /cities
 GET /weather/latest
 GET /air-quality/latest
 GET /analytics
+GET /dashboard/map
+GET /pipeline/runs
 ```
 
-The `/analytics` endpoint provides the frontend with a combined latest weather and air-quality snapshot for each city.
+The `/dashboard/map` endpoint provides a streamlined list of cities strictly mapped for the interactive map. The API gracefully handles fetching historical trends and tracking the success of background ingestion scripts.
 
 Interactive Swagger documentation is available at:
 
@@ -165,20 +159,16 @@ http://localhost:8000/docs
 
 ## Frontend
 
-The frontend is built with React, TypeScript, and Vite.
+The frontend is built with React, TypeScript, and Vite. It is highly responsive and adapts to 100vh constraints to prevent scrolling on the main view.
 
 Current functionality:
 
-- City selection
-- Current temperature
-- PM2.5
-- US AQI
-- Weather details
-- Air-quality details
-- Refreshing data from the API
-- Responsive dashboard layout
-
-The frontend consumes data from the FastAPI backend rather than accessing the database directly.
+- **Interactive Map**: Built with React-Leaflet and customized CARTO tiles that intelligently adapt between Light/Dark mode.
+- **Dynamic Charting**: Recharts-powered area graphs displaying India's Temperature and AQI trends seamlessly filtered by 24H, 7D, or 30D intervals.
+- **City Panel Details**: Auto-updating weather (temperature, humidity, precipitation, wind) and AQI metrics with dynamic color-coded indicator badges.
+- **Pipeline Monitoring**: Real-time status list of backend Open-Meteo data ingestion tasks.
+- **Theme Switching**: Dedicated Dark/Light mode toggle that updates CSS variables and map-rendering tiles immediately.
+- **Kolkata Time Clock**: A live, globally-synced clock widget set exactly to `Asia/Kolkata` timezone.
 
 ---
 
@@ -194,51 +184,13 @@ PostgreSQL runs through Docker Compose, providing a reproducible local database 
 docker compose up -d
 ```
 
-### CI
+### CI & Isolated Testing
 
 GitHub Actions runs the automated test suite on repository pushes and pull requests.
 
 The CI environment provisions PostgreSQL as a service, initializes the project schema, installs dependencies, and runs the tests.
 
-```text
-Git Push / Pull Request
-          │
-          ▼
-    GitHub Actions
-          │
-          ▼
-    Python Environment
-          │
-          ▼
-    PostgreSQL Service
-          │
-          ▼
-    Database Schema
-          │
-          ▼
-        Pytest
-```
-
-This ensures that database-dependent tests are also validated in a clean CI environment.
-
----
-
-## Testing
-
-The project uses Pytest across the main application layers.
-
-Tests currently cover:
-
-- API clients
-- Data transformation
-- Data validation
-- Pydantic models
-- Database repositories
-- Analytics
-- Pipeline behavior
-- FastAPI endpoints
-
-Run the test suite with:
+Locally, the project explicitly isolates development and test environments by spinning up a secondary `cityair_test` database. This prevents `pytest` from mutating or polluting the local `cityair` development dashboard.
 
 ```bash
 python -m pytest
@@ -258,10 +210,8 @@ The project is being developed incrementally, with each major layer being implem
 - [x] Weather API client
 - [x] Air-quality API client
 - [x] Data models
-- [x] Data transformation
 - [x] Data validation
 - [x] Database repositories
-- [x] Duplicate-safe observation storage
 - [x] Pipeline execution tracking
 - [x] Ingestion pipeline
 - [x] Analytics layer
@@ -269,27 +219,20 @@ The project is being developed incrementally, with each major layer being implem
 - [x] API response models
 - [x] CORS configuration
 - [x] Automated tests
+- [x] Database Isolation for Pytest
 - [x] GitHub Actions CI
-- [x] Docker-based PostgreSQL environment
 - [x] React + TypeScript frontend
-- [x] Frontend API integration
-- [x] City selection
-- [x] Current weather and air-quality dashboard
-
-## Current Focus
-
-The current development focus is the frontend/dashboard layer.
-
-The next backend/frontend integration work will focus on exposing historical observations so that the dashboard can display actual time-series data.
+- [x] Interactive Leaflet Map
+- [x] Dark/Light Mode Theming
+- [x] Interactive Temperature / PM2.5 charts
+- [x] Pipeline Status Monitoring
+- [x] Frontend Refinement and UX Improvements
 
 ## Upcoming
 
-- [ ] Historical weather API endpoint
-- [ ] Historical air-quality API endpoint
-- [ ] Interactive temperature chart
-- [ ] Interactive PM2.5 chart
-- [ ] Additional dashboard analytics
-- [ ] Frontend refinement and UX improvements
+- [ ] Further expansion of Analytics features (e.g. Compare / Rankings)
+- [ ] Automated Pipeline Cron Jobs
+- [ ] Add more granular historical data fetching directly to frontend charts
 
 The roadmap will evolve as the project develops.
 
@@ -330,17 +273,8 @@ Start FastAPI:
 uvicorn api.main:app --reload
 ```
 
-Backend:
-
-```text
-http://localhost:8000
-```
-
-Swagger:
-
-```text
-http://localhost:8000/docs
-```
+Backend: `http://localhost:8000`  
+Swagger: `http://localhost:8000/docs`
 
 ### Frontend
 
@@ -351,11 +285,7 @@ npm install
 npm run dev
 ```
 
-Frontend:
-
-```text
-http://localhost:5173
-```
+Frontend: `http://localhost:5173`
 
 ---
 
@@ -363,7 +293,6 @@ http://localhost:5173
 
 ```text
 CityAir Metrics/
-│
 ├── api/                    # FastAPI application
 ├── config/                 # Configuration
 ├── database/               # Schema, connection and repositories

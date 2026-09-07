@@ -35,7 +35,10 @@ export const PipelineStatusIndicator: React.FC = () => {
     label = "Pipeline offline";
     indicatorClass = "status-indicator-red";
   } else if (status) {
-    if (status.is_active) {
+    if (status.status === "UNKNOWN") {
+      label = "Pipeline idle";
+      indicatorClass = "status-indicator-gray";
+    } else if (status.is_active) {
       label = "Pipeline active";
       indicatorClass = "status-indicator-green";
     } else {

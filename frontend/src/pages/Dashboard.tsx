@@ -1,229 +1,179 @@
-import { useState, useEffect, useCallback } from "react";
-import type { AnalyticsCity, WeatherHistory, AirQualityHistory, ForecastResponse } from "../types";
-import { CitySelector } from "../components/CitySelector";
+import React, { useMemo } from "react";
+import type { DashboardMapData, DashboardSummary } from "../types";
+import { IndiaMap } from "../components/IndiaMap";
+import { SelectedCityPanel } from "../components/SelectedCityPanel";
 import { HistoricalChart } from "../components/HistoricalChart";
-import { Forecast } from "../components/Forecast";
-import { PipelineStatusIndicator } from "../components/PipelineStatusIndicator";
-import { getWeatherCondition, getWeatherIconComponent } from "../utils/weather";
-import { RefreshCw } from "lucide-react";
-import { format, parseISO } from "date-fns";
-
-const API_URL = "http://localhost:8000";
+import { BarChart2, Thermometer, Building2 } from "lucide-react";
+import { getMockIndiaAqiTrend, getMockIndiaTempTrend, getMockRecentPipelineRuns } from "../api/mockAdapter";
 
 type DashboardProps = {
-  cities: AnalyticsCity[];
+  cities: DashboardMapData[];
+  summary: DashboardSummary | null;
   selectedCityId: number | null;
   onCityChange: (id: number) => void;
-  onRefresh: () => void;
-  isRefreshing: boolean;
 };
 
-export const Dashboard = ({
+export const Dashboard: React.FC<DashboardProps> = ({
   cities,
+  summary,
   selectedCityId,
   onCityChange,
-  onRefresh,
-  isRefreshing,
-}: DashboardProps) => {
-  const [weatherHistory, setWeatherHistory] = useState<WeatherHistory[]>([]);
-  const [aqiHistory, setAqiHistory] = useState<AirQualityHistory[]>([]);
-  const [forecast, setForecast] = useState<ForecastResponse | null>(null);
+}) => {
+  const selectedCity = cities.find((c) => c.city_id === selectedCityId);
 
-  const [historyLoading, setHistoryLoading] = useState(true);
-  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [aqiPeriod, setAqiPeriod] = React.useState<"24H" | "7D" | "30D">("24H");
+  const [tempPeriod, setTempPeriod] = React.useState<"24H" | "7D" | "30D">("24H");
 
-  const [forecastLoading, setForecastLoading] = useState(true);
-  const [forecastError, setForecastError] = useState<string | null>(null);
-
-  const fetchHistoryAndForecast = useCallback(async () => {
-    if (!selectedCityId) return;
-    
-    // Fetch History
-    try {
-      setHistoryLoading(true);
-      setHistoryError(null);
-      const [wRes, aqRes] = await Promise.all([
-        fetch(`${API_URL}/weather/history/${selectedCityId}?hours=24`),
-        fetch(`${API_URL}/air-quality/history/${selectedCityId}?hours=24`),
-      ]);
-
-      if (!wRes.ok || !aqRes.ok) throw new Error("Failed to load historical data");
-
-      setWeatherHistory(await wRes.json());
-      setAqiHistory(await aqRes.json());
-    } catch (err) {
-      setHistoryError(err instanceof Error ? err.message : "Error loading history");
-    } finally {
-      setHistoryLoading(false);
-    }
-
-    // Fetch Forecast
-    try {
-      setForecastLoading(true);
-      setForecastError(null);
-      const fRes = await fetch(`${API_URL}/weather/forecast/${selectedCityId}`);
-      
-      if (!fRes.ok) throw new Error("Failed to load forecast data");
-      setForecast(await fRes.json());
-    } catch (err) {
-      setForecastError(err instanceof Error ? err.message : "Error loading forecast");
-    } finally {
-      setForecastLoading(false);
-    }
-  }, [selectedCityId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchHistoryAndForecast();
-  }, [fetchHistoryAndForecast]);
-
-  const handleRefresh = () => {
-    onRefresh();
-    fetchHistoryAndForecast();
-  };
-
-  const selectedCity = cities.find((city) => city.city_id === selectedCityId) ?? null;
-
-  // Development weather preview override
-  const devOverride = typeof window !== "undefined" 
-    ? new URLSearchParams(window.location.search).get("weather") 
-    : null;
-
-  if (!selectedCity) {
-    return (
-      <div className="dashboard-content empty-state">
-        <p>No city selected.</p>
-      </div>
-    );
-  }
-
-  const { weather, air_quality } = selectedCity;
-  
-  // Apply dev override for testing icons if present
-  let effectiveWeatherCode = weather.weather_code;
-  if (devOverride) {
-    if (devOverride === "clear") effectiveWeatherCode = 0;
-    else if (devOverride === "partly-cloudy") effectiveWeatherCode = 1;
-    else if (devOverride === "cloudy") effectiveWeatherCode = 3;
-    else if (devOverride === "rain") effectiveWeatherCode = 61;
-    else if (devOverride === "snow") effectiveWeatherCode = 71;
-    else if (devOverride === "thunderstorm" || devOverride === "storm") effectiveWeatherCode = 95;
-  }
-
-  const weatherCond = getWeatherCondition(effectiveWeatherCode);
-  const MainWeatherIcon = getWeatherIconComponent(effectiveWeatherCode);
-  
-  const lastUpdated = weather.observed_at 
-    ? format(parseISO(weather.observed_at), "HH:mm") 
-    : "Unknown";
+  const aqiTrend = useMemo(() => getMockIndiaAqiTrend(aqiPeriod), [aqiPeriod]);
+  const tempTrend = useMemo(() => getMockIndiaTempTrend(tempPeriod), [tempPeriod]);
+  const pipelineRuns = useMemo(() => getMockRecentPipelineRuns(), []);
 
   return (
-    <div className="dashboard-wrapper">
-      <div className="dashboard-content">
-        <header className="dashboard-header">
-          <div className="header-title">
-            <h1>{selectedCity.name}, {selectedCity.country}</h1>
-            <p className="subtitle">{weatherCond} &middot; Updated {lastUpdated}</p>
+    <div className="dashboard-page">
+      {/* SECTION 1: Summary Cards */}
+      <section className="dashboard-row-1">
+        <div className="dashboard-card summary-card">
+          <div className="sc-icon-circle"><BarChart2 size={24} /></div>
+          <div className="sc-content">
+            <div className="sc-title">AVG AQI (India)</div>
+            <div className="sc-value">
+              {summary?.average_aqi !== null && summary?.average_aqi !== undefined ? Math.round(summary.average_aqi) : "-"}
+            </div>
+            <div className="sc-subtitle">Moderate (All state capitals)</div>
           </div>
-          <div className="header-actions">
-            <PipelineStatusIndicator />
-            <CitySelector
-              cities={cities}
-              selectedCityId={selectedCityId}
-              onCityChange={onCityChange}
-            />
-            <button
-              type="button"
-              className="action-button icon-only"
-              onClick={handleRefresh}
-              disabled={isRefreshing || historyLoading || forecastLoading}
-              title="Refresh data"
-            >
-              <RefreshCw size={18} className={isRefreshing ? "spin" : ""} />
-            </button>
-          </div>
-        </header>
-
-        <div className="dashboard-grid">
-          
-          <section className="dashboard-card current-weather-card">
-            <div className="current-weather-main">
-              {/* eslint-disable-next-line react-hooks/static-components */}
-              <MainWeatherIcon size={56} className="hero-icon" />
-              <div className="hero-temp-block">
-                <span className="hero-temp">{weather.temperature_c ?? "—"}°C</span>
-                <span className="hero-cond">{weatherCond}</span>
-              </div>
-            </div>
-            <div className="current-weather-details">
-              <div className="detail-row"><span>Feels like</span><strong>{weather.apparent_temperature_c ?? "—"}°C</strong></div>
-              <div className="detail-row"><span>Humidity</span><strong>{weather.humidity_percent ?? "—"}%</strong></div>
-              <div className="detail-row"><span>Wind</span><strong>{weather.wind_speed_kmh ?? "—"} km/h</strong></div>
-              <div className="detail-row"><span>Rain</span><strong>{weather.precipitation_mm ?? "—"} mm</strong></div>
-            </div>
-          </section>
-
-          <section className="dashboard-card air-quality-card">
-            <h2 className="section-title">AIR QUALITY</h2>
-            <div className="aq-layout">
-              <div className="aq-primary">
-                <div className="aq-metric">
-                  <span className="aq-label">PM2.5</span>
-                  <span className="aq-val">{air_quality.pm2_5 ?? "—"}<small>µg/m³</small></span>
-                </div>
-                <div className="aq-metric">
-                  <span className="aq-label">US AQI</span>
-                  <span className="aq-val">{air_quality.us_aqi ?? "—"}</span>
-                </div>
-              </div>
-              <div className="aq-secondary">
-                <div className="aq-row"><span>PM10</span><span>{air_quality.pm10 ?? "—"} µg/m³</span></div>
-                <div className="aq-row"><span>Ozone (O₃)</span><span>{air_quality.ozone ?? "—"} µg/m³</span></div>
-                <div className="aq-row"><span>NO₂</span><span>{air_quality.nitrogen_dioxide ?? "—"} µg/m³</span></div>
-                <div className="aq-row"><span>CO</span><span>{air_quality.carbon_monoxide ?? "—"} µg/m³</span></div>
-                <div className="aq-row"><span>SO₂</span><span>{air_quality.sulphur_dioxide ?? "—"} µg/m³</span></div>
-              </div>
-            </div>
-          </section>
-
-          <section className="dashboard-card history-card">
-            <h2 className="section-title">24H HISTORY</h2>
-            <div className="history-grid">
-              <HistoricalChart 
-                title="Temperature"
-                data={weatherHistory}
-                dataKey="temperature_c"
-                color="var(--accent-color)"
-                unit="°C"
-                loading={historyLoading}
-                error={historyError}
-                onRetry={fetchHistoryAndForecast}
-              />
-              <HistoricalChart 
-                title="PM2.5"
-                data={aqiHistory}
-                dataKey="pm2_5"
-                color="var(--warning)"
-                unit="µg/m³"
-                loading={historyLoading}
-                error={historyError}
-                onRetry={fetchHistoryAndForecast}
-              />
-            </div>
-          </section>
-
-          <section className="dashboard-card forecast-card-section">
-            <Forecast 
-              daily={forecast?.daily ?? []}
-              hourly={forecast?.hourly ?? []}
-              loading={forecastLoading}
-              error={forecastError}
-              onRetry={fetchHistoryAndForecast}
-            />
-          </section>
-
         </div>
-      </div>
+
+        <div className="dashboard-card summary-card">
+          <div className="sc-icon-circle"><Thermometer size={24} /></div>
+          <div className="sc-content">
+            <div className="sc-title">AVG TEMPERATURE (India)</div>
+            <div className="sc-value">
+              {summary?.average_temperature_c !== null && summary?.average_temperature_c !== undefined ? `${Math.round(summary.average_temperature_c)}°C` : "-"}
+            </div>
+            <div className="sc-subtitle">(All state capitals)</div>
+          </div>
+        </div>
+
+        <div className="dashboard-card summary-card">
+          <div className="sc-icon-circle"><Building2 size={24} /></div>
+          <div className="sc-content">
+            <div className="sc-title">CITIES MONITORED</div>
+            <div className="sc-value">
+              {summary?.total_cities ?? "-"}
+            </div>
+            <div className="sc-subtitle">State capitals</div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: Map + Selected City */}
+      <section className="dashboard-row-2">
+        <div className="dashboard-card map-card">
+          <h3 className="map-card-title">Air Quality Across State Capitals</h3>
+          <div className="map-legend-simple">
+            <div className="legend-item"><div className="dot" style={{ backgroundColor: "#22c55e" }} /> Good</div>
+            <div className="legend-item"><div className="dot" style={{ backgroundColor: "#facc15" }} /> Moderate</div>
+            <div className="legend-item"><div className="dot" style={{ backgroundColor: "#f97316" }} /> Unhealthy</div>
+            <div className="legend-item"><div className="dot" style={{ backgroundColor: "#ef4444" }} /> Very Unhealthy</div>
+          </div>
+          <div className="map-container-inner">
+            <IndiaMap 
+              cities={cities} 
+              selectedCityId={selectedCityId} 
+              onCityClick={onCityChange} 
+            />
+          </div>
+        </div>
+        
+        <div className="city-panel-container">
+          {selectedCity ? (
+            <SelectedCityPanel city={selectedCity} />
+          ) : (
+            <div className="dashboard-card city-panel-card" style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}>
+              <p>Select a city on the map to view details.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* SECTION 3: Bottom Row */}
+      <section className="dashboard-row-3">
+        <div className="dashboard-card trend-card">
+          <div className="trend-header">
+            <div className="trend-title">AQI Trend &mdash; India (All State Capitals)</div>
+            <div className="trend-toggles">
+              <button className={`trend-toggle ${aqiPeriod === "24H" ? "active" : ""}`} onClick={() => setAqiPeriod("24H")}>24H</button>
+              <button className={`trend-toggle ${aqiPeriod === "7D" ? "active" : ""}`} onClick={() => setAqiPeriod("7D")}>7D</button>
+              <button className={`trend-toggle ${aqiPeriod === "30D" ? "active" : ""}`} onClick={() => setAqiPeriod("30D")}>30D</button>
+            </div>
+          </div>
+          <div style={{ flex: 1, minHeight: 0, height: "calc(100% - 32px)" }}>
+            <HistoricalChart 
+              title=""
+              data={aqiTrend}
+              dataKey="value"
+              color="#6b7280" 
+              unit="AQI"
+              loading={false}
+              error={null}
+              onRetry={() => {}}
+            />
+          </div>
+        </div>
+
+        <div className="dashboard-card trend-card">
+          <div className="trend-header">
+            <div className="trend-title">Temperature Trend &mdash; India (All State Capitals)</div>
+            <div className="trend-toggles">
+              <button className={`trend-toggle ${tempPeriod === "24H" ? "active" : ""}`} onClick={() => setTempPeriod("24H")}>24H</button>
+              <button className={`trend-toggle ${tempPeriod === "7D" ? "active" : ""}`} onClick={() => setTempPeriod("7D")}>7D</button>
+              <button className={`trend-toggle ${tempPeriod === "30D" ? "active" : ""}`} onClick={() => setTempPeriod("30D")}>30D</button>
+            </div>
+          </div>
+          <div style={{ flex: 1, minHeight: 0, height: "calc(100% - 32px)" }}>
+            <HistoricalChart 
+              title=""
+              data={tempTrend}
+              dataKey="value"
+              color="#6b7280"
+              unit="°C"
+              loading={false}
+              error={null}
+              onRetry={() => {}}
+            />
+          </div>
+        </div>
+
+        <div className="dashboard-card pipeline-card">
+          <div className="trend-header">
+            <div className="trend-title">Recent Pipeline Runs</div>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto" }}>
+            <table className="pipeline-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Pipeline</th>
+                  <th>Status</th>
+                  <th>Records</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pipelineRuns.map(run => (
+                  <tr key={run.id}>
+                    <td>{new Date(run.time).toLocaleTimeString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })}</td>
+                    <td>{run.type}</td>
+                    <td>
+                      <span className="status-pill">{run.status}</span>
+                    </td>
+                    <td>28</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

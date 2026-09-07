@@ -1,9 +1,18 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { format, parseISO } from "date-fns";
+import React from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import type { TimeSeriesTrend } from "../types";
 
 type HistoricalChartProps = {
   title: string;
-  data: Record<string, unknown>[];
+  data: TimeSeriesTrend[];
   dataKey: string;
   color: string;
   unit: string;
@@ -12,92 +21,82 @@ type HistoricalChartProps = {
   onRetry: () => void;
 };
 
-export const HistoricalChart = ({
-  title,
+export const HistoricalChart: React.FC<HistoricalChartProps> = ({
+  
   data,
   dataKey,
   color,
   unit,
   loading,
   error,
-  onRetry
-}: HistoricalChartProps) => {
+  onRetry,
+}) => {
+  if (loading) {
+    return (
+      <div className="chart-loading-overlay">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="chart-error-overlay">
+        <p>Error: {error}</p>
+        <button onClick={onRetry} className="chart-retry-btn">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="chart-empty-overlay">
+        <p>No data available</p>
+      </div>
+    );
+  }
+
   return (
-    <article className="panel chart-panel">
-      <div className="panel-header chart-header">
-        <h2>{title}</h2>
-        <div className="range-controls">
-          <button className="range-button active">24H</button>
-          <button className="range-button" disabled title="Coming soon">7D</button>
-          <button className="range-button" disabled title="Coming soon">30D</button>
-        </div>
-      </div>
-
-      <div className="chart-container">
-        {loading && (
-          <div className="chart-overlay">
-            <div className="loading-spinner"></div>
-            <p>Loading historical data...</p>
-          </div>
-        )}
-
-        {error && !loading && (
-          <div className="chart-overlay error-overlay">
-            <p>Unable to load historical data.</p>
-            <button onClick={onRetry} className="action-button small">Retry</button>
-          </div>
-        )}
-
-        {!loading && !error && data.length === 0 && (
-          <div className="chart-overlay">
-            <p>No historical data available.</p>
-          </div>
-        )}
-
-        {!loading && !error && data.length > 0 && (
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
-              <XAxis 
-                dataKey="observed_at" 
-                tickFormatter={(val: unknown) => val ? format(parseISO(String(val)), "HH:mm") : ""}
-                stroke="var(--muted-text)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                minTickGap={30}
-              />
-              <YAxis 
-                stroke="var(--muted-text)"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(val) => `${val}`}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: "var(--panel-bg)", 
-                  borderColor: "var(--border-color)",
-                  color: "var(--foreground)",
-                  borderRadius: "8px",
-                  boxShadow: "var(--shadow)"
-                }}
-                itemStyle={{ color: color, fontWeight: 600 }}
-                labelFormatter={(val: unknown) => val ? format(parseISO(String(val)), "MMM d, HH:mm") : ""}
-                formatter={(val: unknown) => [`${val} ${unit}`, title]}
-              />
-              <Line 
-                type="monotone" 
-                dataKey={dataKey} 
-                stroke={color} 
-                strokeWidth={3} 
-                dot={false}
-                activeDot={{ r: 6 }} 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-    </article>
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+        <XAxis
+          dataKey="timestamp"
+          tickFormatter={(time) => {
+            const date = new Date(time);
+            return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          }}
+          stroke="#9ca3af"
+          fontSize={10}
+          tickLine={false}
+          axisLine={false}
+          dy={10}
+        />
+        <YAxis 
+          stroke="#9ca3af" 
+          fontSize={10} 
+          tickLine={false} 
+          axisLine={false}
+          dx={-10}
+        />
+        <Tooltip
+          formatter={(value: any) => [`${Math.round(value)} ${unit}`, ""]}
+          labelFormatter={(label: any) => new Date(label).toLocaleString()}
+          contentStyle={{ backgroundColor: "#1f2937", border: "none", borderRadius: "6px", color: "#fff", fontSize: "0.8rem" }}
+          itemStyle={{ color: "#fff" }}
+        />
+        <Area
+          type="monotone"
+          dataKey={dataKey}
+          stroke={color}
+          strokeWidth={2}
+          fill={color}
+          fillOpacity={0.15}
+          activeDot={{ r: 4, fill: color, stroke: "var(--panel-bg)" }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
   );
 };

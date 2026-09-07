@@ -1,9 +1,9 @@
 import React from "react";
 import { MapPin } from "lucide-react";
-import type { AnalyticsCity } from "../types";
+import type { DashboardMapData } from "../types";
 
 type CitySelectorProps = {
-  cities: AnalyticsCity[];
+  cities: DashboardMapData[];
   selectedCityId: number | null;
   onCityChange: (id: number) => void;
 };
@@ -24,7 +24,7 @@ export const CitySelector: React.FC<CitySelectorProps> = ({
       >
         {cities.map((city) => (
           <option key={city.city_id} value={city.city_id}>
-            {city.name}, {city.country}
+            {city.city_name}, {city.country}
           </option>
         ))}
       </select>

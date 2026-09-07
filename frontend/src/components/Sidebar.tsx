@@ -1,87 +1,97 @@
-import React, { useState } from "react";
-import { ThemeToggle } from "./ThemeToggle";
-import { getWeatherIconComponent } from "../utils/weather";
+import React from "react";
 import {
-  LayoutDashboard,
-  Building2,
-  GitCompare,
-  Trophy,
-  ChartLine,
-  CloudLightning,
-  Settings,
-  PanelLeftClose,
-  PanelLeftOpen
+  Home,
+  BarChart2,
+  Database,
+  Info,
+  ChevronDown,
+  Leaf,
+  Menu
 } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 type SidebarProps = {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  weatherCode?: number | null;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, weatherCode = null }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const WeatherIcon = getWeatherIconComponent(weatherCode ?? null);
-
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "cities", label: "Cities", icon: Building2 },
-    { id: "compare", label: "Compare", icon: GitCompare },
-    { id: "rankings", label: "Rankings", icon: Trophy },
-    { id: "history", label: "History", icon: ChartLine },
-    { id: "severe-weather", label: "Severe Weather", icon: CloudLightning },
-  ];
-
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  activeTab, 
+  onTabChange, 
+  isCollapsed, 
+  onToggleCollapse 
+}) => {
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="sidebar-header">
-        <div className="brand-mark">
-          <span className="brand-full">CITYAIR METRICS</span>
-          <span className="brand-short">CA</span>
-        </div>
-        <button 
-          className="collapse-toggle" 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-        </button>
+      <div className="sidebar-brand">
+        <Leaf size={24} className="brand-logo" />
+        <h2>CityAir Metrics</h2>
+        {!isCollapsed && (
+          <button 
+            onClick={onToggleCollapse}
+            style={{ marginLeft: "auto", border: "none", background: "none", cursor: "pointer", color: "var(--muted-text)" }}
+          >
+            <Menu size={20} />
+          </button>
+        )}
       </div>
 
-      <div className="sidebar-weather-badge" title="Current weather">
-        {/* eslint-disable-next-line react-hooks/static-components */}
-        <WeatherIcon size={16} className="sidebar-weather-icon" />
-        <span className="nav-label sidebar-weather-label">
-          {weatherCode !== null && weatherCode !== undefined ? "Live" : ""}
-        </span>
-      </div>
+      {isCollapsed && (
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+          <button 
+            onClick={onToggleCollapse}
+            style={{ border: "none", background: "none", cursor: "pointer", color: "var(--muted-text)" }}
+          >
+            <Menu size={20} />
+          </button>
+        </div>
+      )}
 
       <nav className="sidebar-nav">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onTabChange(item.id)}
-            className={`nav-item ${activeTab === item.id ? "active" : ""}`}
-            title={isCollapsed ? item.label : undefined}
-          >
-            <item.icon size={20} className="nav-icon" />
-            <span className="nav-label">{item.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <div className="sidebar-footer">
         <button
-          onClick={() => onTabChange("settings")}
-          className={`nav-item ${activeTab === "settings" ? "active" : ""}`}
-          title={isCollapsed ? "Settings" : undefined}
+          onClick={() => onTabChange("dashboard")}
+          className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
         >
-          <Settings size={20} className="nav-icon" />
-          <span className="nav-label">Settings</span>
+          <Home size={20} className="nav-icon" />
+          <span>Dashboard</span>
         </button>
+
+        <button
+          onClick={() => onTabChange("analytics")}
+          className={`nav-item ${activeTab === "analytics" ? "active" : ""}`}
+        >
+          <BarChart2 size={20} className="nav-icon" />
+          <span>Analytics</span>
+          {!isCollapsed && <ChevronDown size={16} className="nav-icon" style={{ marginLeft: "auto" }} />}
+        </button>
+
+        {!isCollapsed && activeTab === "analytics" && (
+          <div className="nav-sub">
+            <div className="nav-sub-item">Compare</div>
+            <div className="nav-sub-item">Rankings</div>
+          </div>
+        )}
+
+        <button
+          onClick={() => onTabChange("pipeline")}
+          className={`nav-item ${activeTab === "pipeline" ? "active" : ""}`}
+        >
+          <Database size={20} className="nav-icon" />
+          <span>Data Pipeline</span>
+        </button>
+
+        <button
+          onClick={() => onTabChange("about")}
+          className={`nav-item ${activeTab === "about" ? "active" : ""}`}
+        >
+          <Info size={20} className="nav-icon" />
+          <span>About</span>
+        </button>
+
         <ThemeToggle isCollapsed={isCollapsed} />
-      </div>
+      </nav>
     </aside>
   );
 };
