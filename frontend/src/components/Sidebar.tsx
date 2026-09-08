@@ -5,8 +5,7 @@ import {
   Database,
   Info,
   ChevronDown,
-  Leaf,
-  Menu
+  Menu,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -17,21 +16,26 @@ type SidebarProps = {
   onToggleCollapse: () => void;
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ 
-  activeTab, 
-  onTabChange, 
-  isCollapsed, 
-  onToggleCollapse 
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  onTabChange,
+  isCollapsed,
+  onToggleCollapse,
 }) => {
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="sidebar-brand">
-        <Leaf size={24} className="brand-logo" />
+      <div className="sidebar-brand" style={{ whiteSpace: "nowrap" }}>
         <h2>CityAir Metrics</h2>
         {!isCollapsed && (
-          <button 
+          <button
             onClick={onToggleCollapse}
-            style={{ marginLeft: "auto", border: "none", background: "none", cursor: "pointer", color: "var(--muted-text)" }}
+            style={{
+              marginLeft: "auto",
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              color: "var(--muted-text)",
+            }}
           >
             <Menu size={20} />
           </button>
@@ -39,10 +43,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {isCollapsed && (
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-          <button 
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "16px",
+          }}
+        >
+          <button
             onClick={onToggleCollapse}
-            style={{ border: "none", background: "none", cursor: "pointer", color: "var(--muted-text)" }}
+            style={{
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              color: "var(--muted-text)",
+            }}
           >
             <Menu size={20} />
           </button>
@@ -64,7 +79,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <BarChart2 size={20} className="nav-icon" />
           <span>Analytics</span>
-          {!isCollapsed && <ChevronDown size={16} className="nav-icon" style={{ marginLeft: "auto" }} />}
+          {!isCollapsed && (
+            <ChevronDown
+              size={16}
+              className="nav-icon"
+              style={{ marginLeft: "auto" }}
+            />
+          )}
         </button>
 
         {!isCollapsed && activeTab === "analytics" && (

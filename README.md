@@ -48,16 +48,16 @@ Features include:
 
 ## Tech Stack
 
-| Area             | Technologies                           |
-| ---------------- | -------------------------------------- |
-| Data Engineering | Python, Requests, Pydantic             |
-| Database         | PostgreSQL 16, Psycopg                 |
-| Backend          | FastAPI, Uvicorn                       |
+| Area             | Technologies                                    |
+| ---------------- | ----------------------------------------------- |
+| Data Engineering | Python, Requests, Pydantic                      |
+| Database         | PostgreSQL 16, Psycopg                          |
+| Backend          | FastAPI, Uvicorn                                |
 | Frontend         | React, TypeScript, Vite, CSS, Leaflet, Recharts |
-| Testing          | Pytest, python-dotenv                  |
-| DevOps           | Docker, Docker Compose, GitHub Actions |
-| CI               | GitHub Actions                         |
-| Data Source      | Open-Meteo                             |
+| Testing          | Pytest, python-dotenv                           |
+| DevOps           | Docker, Docker Compose, GitHub Actions          |
+| CI               | GitHub Actions                                  |
+| Data Source      | Open-Meteo                                      |
 
 ---
 

@@ -5,15 +5,12 @@ type ThemeToggleProps = {
   isCollapsed?: boolean;
 };
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isCollapsed = false }) => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      setIsDark(true);
-    }
-  }, []);
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  isCollapsed = false,
+}) => {
+  const [isDark, setIsDark] = useState(
+    () => localStorage.getItem("theme") === "dark",
+  );
 
   useEffect(() => {
     if (isDark) {
@@ -36,9 +33,22 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isCollapsed = false })
   };
 
   return (
-    <button onClick={toggleTheme} className="nav-item theme-toggle" title={isCollapsed ? "Toggle theme" : undefined} style={{ marginTop: "auto", marginBottom: "80px" }}>
-      {isDark ? <Moon size={20} className="nav-icon" /> : <Sun size={20} className="nav-icon" />}
-      {!isCollapsed && <span className="nav-label" style={{ marginLeft: "12px" }}>{isDark ? "Dark Mode" : "Light Mode"}</span>}
+    <button
+      onClick={toggleTheme}
+      className="nav-item theme-toggle"
+      title={isCollapsed ? "Toggle theme" : undefined}
+      style={{ marginTop: "auto", marginBottom: "80px" }}
+    >
+      {isDark ? (
+        <Moon size={20} className="nav-icon" />
+      ) : (
+        <Sun size={20} className="nav-icon" />
+      )}
+      {!isCollapsed && (
+        <span className="nav-label" style={{ marginLeft: "12px" }}>
+          {isDark ? "Dark Mode" : "Light Mode"}
+        </span>
+      )}
     </button>
   );
 };

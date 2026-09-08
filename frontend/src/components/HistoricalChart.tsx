@@ -11,7 +11,6 @@ import {
 import type { TimeSeriesTrend } from "../types";
 
 type HistoricalChartProps = {
-  title: string;
   data: TimeSeriesTrend[];
   dataKey: string;
   color: string;
@@ -22,7 +21,6 @@ type HistoricalChartProps = {
 };
 
 export const HistoricalChart: React.FC<HistoricalChartProps> = ({
-  
   data,
   dataKey,
   color,
@@ -60,13 +58,23 @@ export const HistoricalChart: React.FC<HistoricalChartProps> = ({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+      <AreaChart
+        data={data}
+        margin={{ top: 10, right: 0, left: -20, bottom: 0 }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          vertical={false}
+          stroke="var(--border-color)"
+        />
         <XAxis
           dataKey="timestamp"
           tickFormatter={(time) => {
             const date = new Date(time);
-            return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            return date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
           }}
           stroke="#9ca3af"
           fontSize={10}
@@ -74,17 +82,27 @@ export const HistoricalChart: React.FC<HistoricalChartProps> = ({
           axisLine={false}
           dy={10}
         />
-        <YAxis 
-          stroke="#9ca3af" 
-          fontSize={10} 
-          tickLine={false} 
+        <YAxis
+          stroke="#9ca3af"
+          fontSize={10}
+          tickLine={false}
           axisLine={false}
           dx={-10}
         />
         <Tooltip
-          formatter={(value: any) => [`${Math.round(value)} ${unit}`, ""]}
-          labelFormatter={(label: any) => new Date(label).toLocaleString()}
-          contentStyle={{ backgroundColor: "#1f2937", border: "none", borderRadius: "6px", color: "#fff", fontSize: "0.8rem" }}
+          // @ts-expect-error Recharts internal typing mismatch
+          formatter={(value: number) => [`${Math.round(value)} ${unit}`, ""]}
+          // @ts-expect-error Recharts internal typing mismatch
+          labelFormatter={(label: string | number | Date) =>
+            new Date(label).toLocaleString()
+          }
+          contentStyle={{
+            backgroundColor: "#1f2937",
+            border: "none",
+            borderRadius: "6px",
+            color: "#fff",
+            fontSize: "0.8rem",
+          }}
           itemStyle={{ color: "#fff" }}
         />
         <Area

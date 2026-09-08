@@ -17,39 +17,53 @@ const getAqiColor = (aqi: number | null) => {
   return "#ef4444"; // Red = Unhealthy / Very Unhealthy
 };
 
-export const IndiaMap: React.FC<IndiaMapProps> = ({ cities, selectedCityId, onCityClick }) => {
-  const [isDark, setIsDark] = useState(false);
+export const IndiaMap: React.FC<IndiaMapProps> = ({
+  cities,
+  selectedCityId,
+  onCityClick,
+}) => {
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark"),
+  );
 
   useEffect(() => {
-    // Initial check
-    setIsDark(document.documentElement.classList.contains("dark"));
-    
     // Observe class changes
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
     });
-    
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
     return () => observer.disconnect();
   }, []);
 
-  const tileUrl = isDark 
+  const tileUrl = isDark
     ? "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
     : "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 
   return (
-    <div className="india-map-container" style={{ height: "100%", width: "100%" }}>
+    <div
+      className="india-map-container"
+      style={{ height: "100%", width: "100%" }}
+    >
       <MapContainer
         center={[22.5, 78.5]}
         zoom={4.5}
         scrollWheelZoom={true}
-        style={{ height: "100%", width: "100%", borderRadius: "6px", background: "transparent" }}
+        style={{
+          height: "100%",
+          width: "100%",
+          borderRadius: "6px",
+          background: "transparent",
+        }}
         zoomControl={false}
       >
         <TileLayer
           key={isDark ? "dark" : "light"}
           url={tileUrl}
-          attribution='&copy; CARTO'
+          attribution="&copy; CARTO"
         />
 
         {cities.map((city) => (
@@ -58,7 +72,8 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({ cities, selectedCityId, onCi
             center={[city.latitude, city.longitude]}
             radius={city.city_id === selectedCityId ? 8 : 6}
             pathOptions={{
-              color: city.city_id === selectedCityId ? "#1f2937" : "transparent",
+              color:
+                city.city_id === selectedCityId ? "#1f2937" : "transparent",
               weight: city.city_id === selectedCityId ? 2 : 0,
               fillColor: getAqiColor(city.aqi),
               fillOpacity: 1,

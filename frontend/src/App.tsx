@@ -3,6 +3,7 @@ import "./App.css";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { Dashboard } from "./pages/Dashboard";
+import { CityPage } from "./pages/CityPage";
 import type { DashboardMapData, DashboardSummary } from "./types";
 
 import { LoadingState } from "./components/LoadingState";
@@ -36,12 +37,16 @@ function App() {
       const mapData = await mapRes.json();
       const summaryData = await summaryRes.json();
 
-      const citiesArray = Array.isArray(mapData) ? mapData : (mapData.cities || []);
+      const citiesArray = Array.isArray(mapData)
+        ? mapData
+        : mapData.cities || [];
       setCities(citiesArray);
       setSummary(summaryData);
 
       if (citiesArray.length > 0 && selectedCityId === null) {
-        const delhi = citiesArray.find((c: DashboardMapData) => c.city_name === "New Delhi");
+        const delhi = citiesArray.find(
+          (c: DashboardMapData) => c.city_name === "New Delhi",
+        );
         setSelectedCityId(delhi ? delhi.city_id : citiesArray[0].city_id);
       }
     } catch (err: Error | unknown) {
@@ -58,12 +63,17 @@ function App() {
 
   const handleCityChange = (id: number) => {
     setSelectedCityId(id);
-    setActiveTab("dashboard");
+    setActiveTab("city");
+  };
+
+  const handleCitySelectMap = (id: number) => {
+    setSelectedCityId(id);
   };
 
   const renderContent = () => {
     if (loading && cities.length === 0) return <LoadingState />;
-    if (error) return <ErrorState message={error} onRetry={fetchDashboardData} />;
+    if (error)
+      return <ErrorState message={error} onRetry={fetchDashboardData} />;
 
     switch (activeTab) {
       case "dashboard":
@@ -72,27 +82,38 @@ function App() {
             cities={cities}
             summary={summary}
             selectedCityId={selectedCityId}
-            onCityChange={handleCityChange}
+            onCityChange={handleCitySelectMap}
+            onViewReport={() => setActiveTab("city")}
+          />
+        );
+      case "city":
+        return (
+          <CityPage
+            cities={cities}
+            cityId={selectedCityId}
+            onBack={() => setActiveTab("dashboard")}
           />
         );
       default:
-        return <div style={{padding: "24px"}}>Coming Soon: {activeTab}</div>;
+        return <div style={{ padding: "24px" }}>Coming Soon: {activeTab}</div>;
     }
   };
 
   return (
     <div className="app-shell">
-      <Sidebar 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         isCollapsed={isCollapsed}
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
       />
       <div className="app-right">
-        <Header cities={cities} selectedCityId={selectedCityId} onCityChange={handleCityChange} />
-        <main className="main-content">
-          {renderContent()}
-        </main>
+        <Header
+          cities={cities}
+          selectedCityId={selectedCityId}
+          onCityChange={handleCityChange}
+        />
+        <main className="main-content">{renderContent()}</main>
       </div>
     </div>
   );
