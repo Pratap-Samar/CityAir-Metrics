@@ -1,12 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import type { DashboardMapData } from "../types";
+import type { DashboardMapData, TimeSeriesTrend } from "../types";
 import { getWeatherCondition } from "../utils/weather";
 import { HistoricalChart } from "../components/HistoricalChart";
-import {
-  getMockIndiaAqiTrend,
-  getMockIndiaTempTrend,
-} from "../api/mockAdapter";
+
 import { format, addDays } from "date-fns";
 import {
   ColorfulSun,
@@ -26,6 +23,8 @@ type CityPageProps = {
   onBack: () => void;
 };
 
+const API_URL = "http://localhost:8000";
+
 export const CityPage: React.FC<CityPageProps> = ({
   cityId,
   cities,
@@ -36,11 +35,34 @@ export const CityPage: React.FC<CityPageProps> = ({
   const [aqiPeriod, setAqiPeriod] = useState<"24H" | "7D" | "30D">("24H");
   const [tempPeriod, setTempPeriod] = useState<"24H" | "7D" | "30D">("24H");
 
-  const aqiTrend = useMemo(() => getMockIndiaAqiTrend(aqiPeriod), [aqiPeriod]);
-  const tempTrend = useMemo(
-    () => getMockIndiaTempTrend(tempPeriod),
-    [tempPeriod],
-  );
+  const [aqiTrend, setAqiTrend] = useState<TimeSeriesTrend[]>([]);
+  const [tempTrend, setTempTrend] = useState<TimeSeriesTrend[]>([]);
+
+  React.useEffect(() => {
+    if (!cityId) return;
+    const fetchAqiTrend = async () => {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/trends/${cityId}?metric=aqi&period=${aqiPeriod.toLowerCase()}`);
+        if (res.ok) setAqiTrend(await res.json());
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchAqiTrend();
+  }, [cityId, aqiPeriod]);
+
+  React.useEffect(() => {
+    if (!cityId) return;
+    const fetchTempTrend = async () => {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/trends/${cityId}?metric=temperature&period=${tempPeriod.toLowerCase()}`);
+        if (res.ok) setTempTrend(await res.json());
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchTempTrend();
+  }, [cityId, tempPeriod]);
 
   // Mock forecast data for 5 days (deterministic for purity)
   const forecast5Days = useMemo(() => {
