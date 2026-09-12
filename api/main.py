@@ -4,7 +4,9 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from database.connection import get_connection
+from database.connection import get_db, init_pool, close_pool
+from fastapi import Depends
+from contextlib import asynccontextmanager
 from database.repositories import (
     get_cities,
     get_city,
@@ -32,10 +34,17 @@ from processor.analytics import (
 # ============================================================================
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_pool()
+    yield
+    close_pool()
+
 app = FastAPI(
     title="CityAir Metrics API",
     description="API for city weather and air-quality data",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 
@@ -214,22 +223,17 @@ class PipelineStatusResponse(BaseModel):
 # ============================================================================
 
 
-def _get_city_coordinates(city_id: int):
-    connection = get_connection()
+def _get_city_coordinates(city_id: int, connection):
+    city = get_city(connection, city_id)
 
-    try:
-        city = get_city(connection, city_id)
+    if not city:
+        raise HTTPException(
+            status_code=404,
+            detail="City not found",
+        )
 
-        if not city:
-            raise HTTPException(
-                status_code=404,
-                detail="City not found",
-            )
+    return city[3], city[4]
 
-        return city[3], city[4]
-
-    finally:
-        connection.close()
 
 
 # ============================================================================
@@ -474,19 +478,14 @@ def root():
     "/cities",
     response_model=list[CityResponse],
 )
-def cities():
-    connection = get_connection()
+def cities(connection=Depends(get_db)):
+    rows = get_cities(connection)
 
-    try:
-        rows = get_cities(connection)
+    return [
+        _city_row_to_response(row)
+        for row in rows
+    ]
 
-        return [
-            _city_row_to_response(row)
-            for row in rows
-        ]
-
-    finally:
-        connection.close()
 
 
 # ============================================================================
@@ -498,19 +497,14 @@ def cities():
     "/weather/latest",
     response_model=list[WeatherResponse],
 )
-def latest_weather():
-    connection = get_connection()
+def latest_weather(connection=Depends(get_db)):
+    rows = get_latest_weather_by_city(connection)
 
-    try:
-        rows = get_latest_weather_by_city(connection)
+    return [
+        _weather_row_to_response(row)
+        for row in rows
+    ]
 
-        return [
-            _weather_row_to_response(row)
-            for row in rows
-        ]
-
-    finally:
-        connection.close()
 
 
 # ============================================================================
@@ -522,19 +516,14 @@ def latest_weather():
     "/air-quality/latest",
     response_model=list[AirQualityResponse],
 )
-def latest_air_quality():
-    connection = get_connection()
+def latest_air_quality(connection=Depends(get_db)):
+    rows = get_latest_air_quality_by_city(connection)
 
-    try:
-        rows = get_latest_air_quality_by_city(connection)
+    return [
+        _air_quality_row_to_response(row)
+        for row in rows
+    ]
 
-        return [
-            _air_quality_row_to_response(row)
-            for row in rows
-        ]
-
-    finally:
-        connection.close()
 
 
 # ============================================================================
@@ -546,19 +535,14 @@ def latest_air_quality():
     "/analytics",
     response_model=list[AnalyticsResponse],
 )
-def analytics():
-    connection = get_connection()
+def analytics(connection=Depends(get_db)):
+    rows = get_latest_city_snapshot(connection)
 
-    try:
-        rows = get_latest_city_snapshot(connection)
+    return [
+        _analytics_row_to_response(row)
+        for row in rows
+    ]
 
-        return [
-            _analytics_row_to_response(row)
-            for row in rows
-        ]
-
-    finally:
-        connection.close()
 
 
 # ============================================================================
@@ -575,6 +559,7 @@ def weather_history(
         default="24h",
         description="History period: 24h, 7d, or 30d",
     ),
+    connection=Depends(get_db)
 ):
     if period not in VALID_HISTORY_PERIODS:
         raise HTTPException(
@@ -586,29 +571,24 @@ def weather_history(
             ),
         )
 
-    connection = get_connection()
+    rows = get_history_by_city(
+        connection,
+        city_id,
+        metric="weather",
+        period=period,
+    )
 
-    try:
-        rows = get_history_by_city(
-            connection,
-            city_id,
-            metric="weather",
-            period=period,
-        )
-
-        if period == "24h":
-            return [
-                _weather_history_row_to_response(row)
-                for row in rows
-            ]
-
+    if period == "24h":
         return [
-            _weather_daily_history_row_to_response(row)
+            _weather_history_row_to_response(row)
             for row in rows
         ]
 
-    finally:
-        connection.close()
+    return [
+        _weather_daily_history_row_to_response(row)
+        for row in rows
+    ]
+
 
 
 @app.get(
@@ -620,6 +600,7 @@ def air_quality_history(
         default="24h",
         description="History period: 24h, 7d, or 30d",
     ),
+    connection=Depends(get_db)
 ):
     if period not in VALID_HISTORY_PERIODS:
         raise HTTPException(
@@ -631,29 +612,24 @@ def air_quality_history(
             ),
         )
 
-    connection = get_connection()
+    rows = get_history_by_city(
+        connection,
+        city_id,
+        metric="air_quality",
+        period=period,
+    )
 
-    try:
-        rows = get_history_by_city(
-            connection,
-            city_id,
-            metric="air_quality",
-            period=period,
-        )
-
-        if period == "24h":
-            return [
-                _air_quality_history_row_to_response(row)
-                for row in rows
-            ]
-
+    if period == "24h":
         return [
-            _air_quality_daily_history_row_to_response(row)
+            _air_quality_history_row_to_response(row)
             for row in rows
         ]
 
-    finally:
-        connection.close()
+    return [
+        _air_quality_daily_history_row_to_response(row)
+        for row in rows
+    ]
+
 
 
 # ============================================================================
@@ -665,8 +641,8 @@ def air_quality_history(
     "/weather/forecast/{city_id}",
     response_model=ForecastResponse,
 )
-def weather_forecast(city_id: int):
-    latitude, longitude = _get_city_coordinates(city_id)
+def weather_forecast(city_id: int, connection=Depends(get_db)):
+    latitude, longitude = _get_city_coordinates(city_id, connection)
 
     data = fetch_forecast(
         latitude,
@@ -689,130 +665,116 @@ def weather_forecast(city_id: int):
     "/pipeline/status",
     response_model=PipelineStatusResponse,
 )
-def pipeline_status():
-    connection = get_connection()
+def pipeline_status(connection=Depends(get_db)):
+    run = get_latest_pipeline_run(connection)
 
-    try:
-        run = get_latest_pipeline_run(connection)
-
-        if not run:
-            return {
-                "status": "UNKNOWN",
-                "is_active": False,
-                "started_at": None,
-                "completed_at": None,
-                "cities_processed": None,
-                "cities_failed": None,
-            }
-
-        # run =
-        # (
-        #     id,
-        #     started_at,
-        #     completed_at,
-        #     status,
-        #     cities_processed,
-        #     cities_failed,
-        #     duration_seconds,
-        #     error_message,
-        # )
-
-        status_str = run[3]
-
+    if not run:
         return {
-            "status": status_str,
-            "is_active": status_str == "RUNNING",
-            "started_at": run[1],
-            "completed_at": run[2],
-            "cities_processed": run[4],
-            "cities_failed": run[5],
+            "status": "UNKNOWN",
+            "is_active": False,
+            "started_at": None,
+            "completed_at": None,
+            "cities_processed": None,
+            "cities_failed": None,
         }
 
-    finally:
-        connection.close()
+    # run =
+    # (
+    #     id,
+    #     started_at,
+    #     completed_at,
+    #     status,
+    #     cities_processed,
+    #     cities_failed,
+    #     duration_seconds,
+    #     error_message,
+    # )
+
+    status_str = run[3]
+
+    return {
+        "status": status_str,
+        "is_active": status_str == "RUNNING",
+        "started_at": run[1],
+        "completed_at": run[2],
+        "cities_processed": run[4],
+        "cities_failed": run[5],
+    }
+
 
 # ============================================================================
 # Dashboard endpoints
 # ============================================================================
 
 @app.get("/dashboard/summary")
-def dashboard_summary():
-    connection = get_connection()
-    try:
-        return get_dashboard_summary(connection)
-    finally:
-        connection.close()
+def dashboard_summary(connection=Depends(get_db)):
+    return get_dashboard_summary(connection)
 
 @app.get("/dashboard/map")
-def dashboard_map():
-    connection = get_connection()
-    try:
-        return get_dashboard_map_data(connection)
-    finally:
-        connection.close()
+def dashboard_map(connection=Depends(get_db)):
+    return get_dashboard_map_data(connection)
+
+@app.get("/dashboard/trends/overall")
+def dashboard_trends_overall(
+    metric: str = Query("aqi", description="aqi or temperature"),
+    period: str = Query("24h", description="24h, 7d, or 30d"),
+    connection=Depends(get_db)
+):
+    if metric not in ("aqi", "temperature"):
+        raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi or temperature.")
+    if period not in ("24h", "7d", "30d"):
+        raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
+
+    return get_time_series_trends(connection, None, metric, period)
 
 @app.get("/dashboard/trends/{city_id}")
 def dashboard_trends(
     city_id: int,
     metric: str = Query("aqi", description="aqi or temperature"),
-    period: str = Query("24h", description="24h, 7d, or 30d")
+    period: str = Query("24h", description="24h, 7d, or 30d"),
+    connection=Depends(get_db)
 ):
-    connection = get_connection()
-    try:
-        city = get_city(connection, city_id)
-        if not city:
-            raise HTTPException(status_code=404, detail="City not found")
+    city = get_city(connection, city_id)
+    if not city:
+        raise HTTPException(status_code=404, detail="City not found")
 
-        if metric not in ("aqi", "temperature"):
-            raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi or temperature.")
-        if period not in ("24h", "7d", "30d"):
-            raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
+    if metric not in ("aqi", "temperature"):
+        raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi or temperature.")
+    if period not in ("24h", "7d", "30d"):
+        raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
 
-        return get_time_series_trends(connection, city_id, metric, period)
-    finally:
-        connection.close()
+    return get_time_series_trends(connection, city_id, metric, period)
 
 @app.get("/dashboard/changes")
-def dashboard_changes(metric: str = Query("aqi", description="aqi")):
-    connection = get_connection()
-    try:
-        if metric != "aqi":
-            raise HTTPException(status_code=400, detail="Invalid metric. Only aqi is supported.")
-        return get_biggest_changes(connection, metric)
-    finally:
-        connection.close()
+def dashboard_changes(metric: str = Query("aqi", description="aqi"), connection=Depends(get_db)):
+    if metric != "aqi":
+        raise HTTPException(status_code=400, detail="Invalid metric. Only aqi is supported.")
+    return get_biggest_changes(connection, metric)
 
 @app.get("/dashboard/rankings")
 def dashboard_rankings(
     metric: str = Query("aqi", description="aqi, pm2_5, or pm10"),
-    period: str = Query("24h", description="24h, 7d, or 30d")
+    period: str = Query("24h", description="24h, 7d, or 30d"),
+    connection=Depends(get_db)
 ):
-    connection = get_connection()
-    try:
-        if metric not in ("aqi", "pm2_5", "pm10"):
-            raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi, pm2_5, or pm10.")
-        if period not in ("24h", "7d", "30d"):
-            raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
+    if metric not in ("aqi", "pm2_5", "pm10"):
+        raise HTTPException(status_code=400, detail="Invalid metric. Must be aqi, pm2_5, or pm10.")
+    if period not in ("24h", "7d", "30d"):
+        raise HTTPException(status_code=400, detail="Invalid period. Must be 24h, 7d, or 30d.")
 
-        return get_city_rankings(connection, metric, period)
-    finally:
-        connection.close()
+    return get_city_rankings(connection, metric, period)
 
 @app.get("/dashboard/pipeline")
-def dashboard_pipeline():
-    connection = get_connection()
-    try:
-        status = get_dashboard_pipeline_status(connection)
-        if not status:
-            return {
-                "status": "UNKNOWN",
-                "started_at": None,
-                "completed_at": None,
-                "duration_seconds": None,
-                "cities_processed": 0,
-                "cities_failed": 0,
-                "error_message": None
-            }
-        return status
-    finally:
-        connection.close()
+def dashboard_pipeline(connection=Depends(get_db)):
+    status = get_dashboard_pipeline_status(connection)
+    if not status:
+        return {
+            "status": "UNKNOWN",
+            "started_at": None,
+            "completed_at": None,
+            "duration_seconds": None,
+            "cities_processed": 0,
+            "cities_failed": 0,
+            "error_message": None
+        }
+    return status

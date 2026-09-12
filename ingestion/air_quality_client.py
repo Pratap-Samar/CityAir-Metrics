@@ -19,6 +19,9 @@ def fetch_air_quality(latitude: float, longitude: float) -> dict:
             "us_aqi"
         ),
         "timezone": "auto",
+        "hourly": "pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,us_aqi",
+        "past_hours": 24,
+        "forecast_hours": 1,
     }
 
     for attempt in range(API_MAX_RETRIES):

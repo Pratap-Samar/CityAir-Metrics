@@ -25,8 +25,8 @@ def setup_test_database():
     password = os.environ["POSTGRES_PASSWORD"]
     db = os.environ["POSTGRES_DB"]
     
-    # Connect to the default 'postgres' database to create the test DB
-    default_db_url = f"postgresql://{user}:{password}@localhost:5432/postgres"
+    # Connect to the default 'cityair' database to create the test DB
+    default_db_url = f"postgresql://{user}:{password}@localhost:5432/cityair"
     with psycopg.connect(default_db_url, autocommit=True) as conn:
         with conn.cursor() as cur:
             try:
@@ -48,3 +48,8 @@ def setup_test_database():
             cur.execute("CREATE SCHEMA public;")
             cur.execute(schema_sql)
         conn.commit()
+
+    from database.connection import init_pool, close_pool
+    init_pool()
+    yield
+    close_pool()

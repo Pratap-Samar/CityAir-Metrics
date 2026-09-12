@@ -64,7 +64,7 @@ def test_pipeline_transaction_boundaries(monkeypatch):
     monkeypatch.setattr(pipeline, "fetch_weather", fake_fetch_weather)
 
     def fake_transform_weather(city, data):
-        return object()
+        return [object()]
 
     def fake_save_weather_observation(observation, city_id, connection):
         saved_weather_cities.append(city_id)
@@ -81,7 +81,7 @@ def test_pipeline_transaction_boundaries(monkeypatch):
     monkeypatch.setattr(pipeline, "fetch_air_quality", fake_fetch_air_quality)
 
     def fake_transform_air_quality(city, data):
-        return object()
+        return [object()]
 
     def fake_save_air_quality_observation(observation, city_id, connection):
         saved_air_quality_cities.append(city_id)
@@ -90,8 +90,8 @@ def test_pipeline_transaction_boundaries(monkeypatch):
     monkeypatch.setattr(pipeline, "transform_air_quality", fake_transform_air_quality)
     monkeypatch.setattr(pipeline, "save_air_quality_observation", fake_save_air_quality_observation)
 
-    monkeypatch.setattr(pipeline, "validate_weather_freshness", lambda observation: None)
-    monkeypatch.setattr(pipeline, "validate_air_quality_freshness", lambda observation: None)
+    monkeypatch.setattr(pipeline, "validate_weather_freshness", lambda obs: None)
+    monkeypatch.setattr(pipeline, "validate_air_quality_freshness", lambda obs: None)
     monkeypatch.setattr(pipeline, "create_pipeline_run", lambda started_at, connection: 1)
     monkeypatch.setattr(pipeline, "complete_pipeline_run", lambda **kwargs: None)
 

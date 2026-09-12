@@ -43,7 +43,10 @@ export const CityPage: React.FC<CityPageProps> = ({
     const fetchAqiTrend = async () => {
       try {
         const res = await fetch(`${API_URL}/dashboard/trends/${cityId}?metric=aqi&period=${aqiPeriod.toLowerCase()}`);
-        if (res.ok) setAqiTrend(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setAqiTrend(data.trends || data);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -56,7 +59,10 @@ export const CityPage: React.FC<CityPageProps> = ({
     const fetchTempTrend = async () => {
       try {
         const res = await fetch(`${API_URL}/dashboard/trends/${cityId}?metric=temperature&period=${tempPeriod.toLowerCase()}`);
-        if (res.ok) setTempTrend(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          setTempTrend(data.trends || data);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -142,7 +148,7 @@ export const CityPage: React.FC<CityPageProps> = ({
         <button onClick={onBack} className="cp-back-btn">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="cp-last-updated">Last updated: {lastUpdated}</div>
+        <div className="cp-last-updated">Latest observation: {lastUpdated}</div>
       </div>
 
       {/* City Title */}

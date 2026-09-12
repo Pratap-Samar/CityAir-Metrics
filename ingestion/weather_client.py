@@ -18,7 +18,10 @@ def fetch_weather(latitude: float, longitude: float) -> dict:
             "wind_speed_10m,"
             "wind_direction_10m"
        ),
-       "timezone" : "auto"
+       "timezone" : "auto",
+       "hourly": "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m",
+       "past_hours": 24,
+       "forecast_hours": 1
     }
 
     for attempt in range(API_MAX_RETRIES):

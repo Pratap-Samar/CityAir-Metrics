@@ -484,7 +484,9 @@ def test_dashboard_trends_success():
     response = client.get(f"/dashboard/trends/{city_id}?metric=aqi&period=24h")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
+    assert isinstance(data, dict)
+    assert "trends" in data
+    assert isinstance(data["trends"], list)
 
 def test_dashboard_trends_invalid_city():
     response = client.get("/dashboard/trends/999999?metric=aqi&period=24h")
@@ -538,3 +540,11 @@ def test_dashboard_pipeline():
     data = response.json()
     assert "status" in data
     assert "cities_processed" in data
+
+def test_dashboard_trends_overall():
+    response = client.get("/dashboard/trends/overall?metric=aqi&period=24h")
+    assert response.status_code == 200
+    data = response.json()
+    assert "trends" in data
+    assert "completeness" in data
+    assert "expected_days" in data["completeness"]

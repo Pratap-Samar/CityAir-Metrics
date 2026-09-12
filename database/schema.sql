@@ -12,7 +12,7 @@ CREATE TABLE cities (
 CREATE TABLE weather_observations (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL REFERENCES cities(id),
-    observed_at TIMESTAMP NOT NULL,
+    observed_at TIMESTAMPTZ NOT NULL,
 
     temperature_c DOUBLE PRECISION,
     humidity_percent DOUBLE PRECISION,
@@ -29,7 +29,7 @@ CREATE TABLE weather_observations (
 CREATE TABLE air_quality_observations (
     id SERIAL PRIMARY KEY,
     city_id INTEGER NOT NULL REFERENCES cities(id),
-    observed_at TIMESTAMP NOT NULL,
+    observed_at TIMESTAMPTZ NOT NULL,
 
     pm10 DOUBLE PRECISION,
     pm2_5 DOUBLE PRECISION,
@@ -44,8 +44,8 @@ CREATE TABLE air_quality_observations (
 
 CREATE TABLE pipeline_runs (
     id SERIAL PRIMARY KEY,
-    started_at TIMESTAMP NOT NULL,
-    completed_at TIMESTAMP,
+    started_at TIMESTAMPTZ NOT NULL,
+    completed_at TIMESTAMPTZ,
     status VARCHAR(20) NOT NULL,
     cities_processed INTEGER NOT NULL DEFAULT 0,
     cities_failed INTEGER NOT NULL DEFAULT 0,

@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from database.connection import get_connection
 from database.repositories import (
@@ -87,7 +88,7 @@ def test_pipeline_run_repository():
     connection = get_connection()
 
     try:
-        started_at = datetime(2026, 9, 2, 10, 0)
+        started_at = datetime(2026, 9, 2, 10, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
 
         run_id = create_pipeline_run(
             started_at,
@@ -96,7 +97,7 @@ def test_pipeline_run_repository():
 
         assert run_id is not None
 
-        completed_at = datetime(2026, 9, 2, 10, 0, 8)
+        completed_at = datetime(2026, 9, 2, 10, 0, 8, tzinfo=ZoneInfo("Asia/Kolkata"))
 
         complete_pipeline_run(
             run_id=run_id,

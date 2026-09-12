@@ -62,15 +62,10 @@ def run_pipeline():
                     weather_data,
                 )
 
-                validate_weather_freshness(
-                    weather_observation,
-                )
+                validate_weather_freshness(weather_observation[-1])
 
-                weather_id = save_weather_observation(
-                    weather_observation,
-                    city_id,
-                    connection,
-                )
+                for obs in weather_observation:
+                    weather_id = save_weather_observation(obs, city_id, connection)
 
                 air_quality_data = fetch_air_quality(
                     latitude,
@@ -82,15 +77,10 @@ def run_pipeline():
                     air_quality_data,
                 )
 
-                validate_air_quality_freshness(
-                    air_quality_observation,
-                )
+                validate_air_quality_freshness(air_quality_observation[-1])
 
-                air_quality_id = save_air_quality_observation(
-                    air_quality_observation,
-                    city_id,
-                    connection,
-                )
+                for obs in air_quality_observation:
+                    air_quality_id = save_air_quality_observation(obs, city_id, connection)
 
                 logger.info(
                     "City ingestion successful: "

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { DashboardMapData, DashboardSummary } from "../types";
+import type { DashboardMapData, DashboardSummary, PipelineStatus } from "../types";
 import { IndiaMap } from "../components/IndiaMap";
 import { SelectedCityPanel } from "../components/SelectedCityPanel";
 import { HistoricalChart } from "../components/HistoricalChart";
@@ -35,6 +35,35 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [tempPeriod, setTempPeriod] = React.useState<"24H" | "7D" | "30D">(
     "24H",
   );
+
+  const [pipelineStatus, setPipelineStatus] = React.useState<PipelineStatus | null>(null);
+
+  React.useEffect(() => {
+    const fetchPipeline = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/dashboard/pipeline");
+        if (res.ok) {
+          const data = await res.json();
+          setPipelineStatus(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPipeline();
+  }, []);
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short"
+    });
+  };
 
   const aqiTrend = useMemo(() => getMockIndiaAqiTrend(aqiPeriod), [aqiPeriod]);
   const tempTrend = useMemo(
@@ -228,6 +257,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="dashboard-card pipeline-card">
           <div className="trend-header">
             <div className="trend-title">Recent Pipeline Runs</div>
+          </div>
+          <div style={{ padding: "0 16px 8px", fontSize: "12px", color: "#6b7280" }}>
+            Last pipeline run: {pipelineStatus ? formatDate(pipelineStatus.completed_at || pipelineStatus.started_at) : "Loading..."}<br />
+            Latest observation: {summary?.last_observation_at ? formatDate(summary.last_observation_at) : "Loading..."}
           </div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             <table className="pipeline-table">

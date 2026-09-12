@@ -834,7 +834,7 @@ def get_dashboard_map_data(connection):
         })
     return results
 
-def get_time_series_trends(connection, city_id, metric="aqi", period="24h"):
+def get_time_series_trends(connection, city_id=None, metric="aqi", period="24h"):
     if metric not in ("aqi", "temperature"):
         raise ValueError("Unsupported metric")
     if period not in ("24h", "7d", "30d"):
@@ -847,15 +847,22 @@ def get_time_series_trends(connection, city_id, metric="aqi", period="24h"):
         table = "weather_observations"
         value_col = "temperature_c"
 
+    expected_days = 1
     if period == "24h":
         start_time = "CURRENT_TIMESTAMP - INTERVAL '24 hours'"
         trunc = "hour"
+        expected_days = 1
     elif period == "7d":
         start_time = "CURRENT_DATE - INTERVAL '6 days'"
         trunc = "day"
+        expected_days = 7
     elif period == "30d":
         start_time = "CURRENT_DATE - INTERVAL '29 days'"
         trunc = "day"
+        expected_days = 30
+
+    city_filter = "AND city_id = %s" if city_id else ""
+    params = (city_id,) if city_id else ()
 
     query = f"""
         SELECT
@@ -863,26 +870,65 @@ def get_time_series_trends(connection, city_id, metric="aqi", period="24h"):
             AVG({value_col}) AS bucket_value,
             COUNT({value_col}) AS obs_count
         FROM {table}
-        WHERE city_id = %s
-          AND observed_at >= {start_time}
+        WHERE observed_at >= {start_time}
+          {city_filter}
         GROUP BY bucket_time
         ORDER BY bucket_time;
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(query, (city_id,))
+        cursor.execute(query, params)
         rows = cursor.fetchall()
 
-    results = []
+    trends = []
+    unique_dates = set()
     for row in rows:
         # If daily, cast back to date
         ts = row[0].date() if trunc == 'day' else row[0]
-        results.append({
+        if trunc == 'day':
+            unique_dates.add(ts)
+        else:
+            unique_dates.add(row[0].date())
+
+        trends.append({
             'timestamp': ts,
             'value': row[1],
             'observation_count': row[2]
         })
-    return results
+
+    actual_days = len(unique_dates)
+    completeness = (actual_days / expected_days) if expected_days > 0 else 0.0
+
+    is_stale = True
+    period_start = None
+    period_end = None
+
+    if trends:
+        period_start = trends[0]['timestamp']
+        period_end = trends[-1]['timestamp']
+
+        last_dt = rows[-1][0]
+        if last_dt.tzinfo is None:
+            last_dt = last_dt.replace(tzinfo=timezone.utc)
+
+        now = datetime.now(timezone.utc)
+        diff_hours = (now - last_dt).total_seconds() / 3600
+        if period == "24h":
+            is_stale = diff_hours > 2
+        else:
+            is_stale = diff_hours > 24
+
+    return {
+        "trends": trends,
+        "completeness": {
+            "period_start": period_start,
+            "period_end": period_end,
+            "expected_days": expected_days,
+            "actual_days": actual_days,
+            "completeness": round(completeness, 2),
+            "is_stale": is_stale
+        }
+    }
 
 def get_biggest_changes(connection, metric="aqi"):
     if metric != "aqi":

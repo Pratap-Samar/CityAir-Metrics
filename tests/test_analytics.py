@@ -1124,20 +1124,20 @@ def test_get_time_series_trends_extended():
         connection.commit()
 
         temp_24h = get_time_series_trends(connection, c1, metric="temperature", period="24h")
-        assert len(temp_24h) >= 1
-        assert any(x['value'] == 20.0 for x in temp_24h)
+        assert len(temp_24h['trends']) >= 1
+        assert any(x['value'] == 20.0 for x in temp_24h['trends'])
 
         aqi_7d = get_time_series_trends(connection, c1, metric="aqi", period="7d")
-        assert len(aqi_7d) >= 1
-        assert any(x['value'] == 100.0 for x in aqi_7d)
+        assert len(aqi_7d['trends']) >= 1
+        assert any(x['value'] == 100.0 for x in aqi_7d['trends'])
 
         temp_30d = get_time_series_trends(connection, c1, metric="temperature", period="30d")
-        assert len(temp_30d) >= 1
-        assert any(x['value'] == 15.0 for x in temp_30d)
+        assert len(temp_30d['trends']) >= 1
+        assert any(x['value'] == 15.0 for x in temp_30d['trends'])
 
         aqi_30d = get_time_series_trends(connection, c1, metric="aqi", period="30d")
-        assert len(aqi_30d) >= 1
-        assert any(x['value'] == 150.0 for x in aqi_30d)
+        assert len(aqi_30d['trends']) >= 1
+        assert any(x['value'] == 150.0 for x in aqi_30d['trends'])
 
         with pytest.raises(ValueError, match="Unsupported metric"):
             get_time_series_trends(connection, c1, metric="invalid", period="24h")
@@ -1215,4 +1215,22 @@ def test_biggest_changes_zero_previous():
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
         connection.commit()
+        connection.close()
+
+from processor.analytics import get_time_series_trends
+
+def test_get_time_series_trends():
+    connection = get_connection()
+    try:
+        # Just testing it doesn't crash on empty db
+        result = get_time_series_trends(connection, city_id=None, metric="aqi", period="24h")
+        assert "trends" in result
+        assert "completeness" in result
+
+        comp = result["completeness"]
+        assert comp["expected_days"] == 1
+        assert comp["actual_days"] == 0
+        assert comp["completeness"] == 0.0
+        assert comp["is_stale"] is True
+    finally:
         connection.close()

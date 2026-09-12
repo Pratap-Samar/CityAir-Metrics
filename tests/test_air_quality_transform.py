@@ -26,11 +26,11 @@ def test_transform_air_quality():
 
     observation = transform_air_quality(city, data)
 
-    assert observation.city == "Delhi"
-    assert observation.pm10 == 90.1
-    assert observation.pm2_5 == 64.0
-    assert observation.carbon_monoxide == 590.0
-    assert observation.nitrogen_dioxide == 21.0
-    assert observation.sulphur_dioxide == 46.6
-    assert observation.ozone == 213.0
-    assert observation.us_aqi == 171
+    assert observation[0].city == "Delhi"
+    assert observation[0].pm10 == 90.1
+    assert observation[0].pm2_5 == 64.0
+    assert observation[0].carbon_monoxide == 590.0
+    assert observation[0].nitrogen_dioxide == 21.0
+    assert observation[0].sulphur_dioxide == 46.6
+    assert observation[0].ozone == 213.0
+    assert observation[0].us_aqi == 171
