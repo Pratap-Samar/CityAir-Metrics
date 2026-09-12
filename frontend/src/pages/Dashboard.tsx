@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { DashboardMapData, DashboardSummary, PipelineStatus } from "../types";
+import type { DashboardMapData, DashboardSummary, PipelineStatus, TimeSeriesTrend } from "../types";
 import { IndiaMap } from "../components/IndiaMap";
 import { SelectedCityPanel } from "../components/SelectedCityPanel";
 import { HistoricalChart } from "../components/HistoricalChart";
@@ -9,10 +9,10 @@ import {
   ColorfulBuildingIcon,
 } from "../components/ColorfulIcons";
 import {
-  getMockIndiaAqiTrend,
-  getMockIndiaTempTrend,
   getMockRecentPipelineRuns,
 } from "../api/mockAdapter";
+
+const API_URL = "http://localhost:8000";
 
 type DashboardProps = {
   cities: DashboardMapData[];
@@ -65,11 +65,38 @@ export const Dashboard: React.FC<DashboardProps> = ({
     });
   };
 
-  const aqiTrend = useMemo(() => getMockIndiaAqiTrend(aqiPeriod), [aqiPeriod]);
-  const tempTrend = useMemo(
-    () => getMockIndiaTempTrend(tempPeriod),
-    [tempPeriod],
-  );
+  const [aqiTrend, setAqiTrend] = React.useState<TimeSeriesTrend[]>([]);
+  const [tempTrend, setTempTrend] = React.useState<TimeSeriesTrend[]>([]);
+
+  React.useEffect(() => {
+    const fetchAqiTrend = async () => {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/trends/overall?metric=aqi&period=${aqiPeriod.toLowerCase()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setAqiTrend(data.trends || data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchAqiTrend();
+  }, [aqiPeriod]);
+
+  React.useEffect(() => {
+    const fetchTempTrend = async () => {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/trends/overall?metric=temperature&period=${tempPeriod.toLowerCase()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setTempTrend(data.trends || data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchTempTrend();
+  }, [tempPeriod]);
   const pipelineRuns = useMemo(() => getMockRecentPipelineRuns(), []);
 
   return (
