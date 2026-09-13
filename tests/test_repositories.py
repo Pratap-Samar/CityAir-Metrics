@@ -22,8 +22,7 @@ def test_repository_integration():
 
     try:
         city = {
-            "name": "Test City",
-            "country": "Test Country",
+            "name": "Test City", "state": "Test State", "country": "Test Country",
             "latitude": 10.1234,
             "longitude": 20.5678,
         }
@@ -145,8 +144,7 @@ def test_get_cities():
 
     try:
         city = {
-            "name": "Test City",
-            "country": "Test Country",
+            "name": "Test City", "state": "Test State", "country": "Test Country",
             "latitude": 10.1234,
             "longitude": 20.5678,
         }
@@ -164,14 +162,17 @@ def test_get_cities():
             city
             for city in cities
             if city[1] == "Test City"
-            and city[2] == "Test Country"
+            and city[2] == "Test State"
+            and city[3] == "Test Country"
         )
 
         assert test_city[0] is not None
         assert test_city[1] == "Test City"
-        assert test_city[2] == "Test Country"
-        assert test_city[3] == 10.1234
-        assert test_city[4] == 20.5678
+        assert test_city[2] == "Test State"
+        assert test_city[3] == "Test Country"
+        assert test_city[4] == 10.1234
+        assert test_city[5] == 20.5678
+        
 
     finally:
         connection.close()

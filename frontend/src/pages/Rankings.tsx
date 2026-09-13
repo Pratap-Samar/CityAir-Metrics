@@ -86,7 +86,7 @@ export const Rankings: React.FC<RankingsProps> = ({ onCitySelect }) => {
               <tr key={city.city_id} onClick={() => onCitySelect(city.city_id)}>
                 <td className="rank-idx">{idx + 1}</td>
                 <td className="rank-city">{city.name}</td>
-                <td className="rank-state">{city.country}</td>
+                <td className="rank-state">{city.state}</td>
                 <td className="rank-value">{value}</td>
                 <td>
                   <span className={`aqi-badge ${className}`}>{label}</span>

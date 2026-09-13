@@ -19,6 +19,7 @@ export type DashboardSummary = {
 export type DashboardMapData = {
   city_id: number;
   city_name: string;
+  state: string;
   country: string;
   latitude: number;
   longitude: number;
@@ -42,6 +43,7 @@ export type TimeSeriesTrend = {
 export type BiggestChange = {
   city_id: number;
   name: string;
+  state: string;
   country: string;
   current_value: number | null;
   previous_value: number | null;
@@ -52,6 +54,7 @@ export type BiggestChange = {
 export type CityRanking = {
   city_id: number;
   name: string;
+  state: string;
   country: string;
   value: number | null;
   previous_value: number | null;

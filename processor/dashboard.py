@@ -111,6 +111,7 @@ def get_dashboard_map_data(connection):
         SELECT
             c.id AS city_id,
             c.name AS city_name,
+            c.state,
             c.country,
             c.latitude,
             c.longitude,
@@ -158,18 +159,19 @@ def get_dashboard_map_data(connection):
         results.append({
             'city_id': row[0],
             'city_name': row[1],
-            'country': row[2],
-            'latitude': row[3],
-            'longitude': row[4],
-            'aqi': row[5],
-            'pm2_5': row[6],
-            'pm10': row[7],
-            'temperature_c': row[8],
-            'humidity_percent': row[9],
-            'wind_speed_kmh': row[10],
-            'precipitation_mm': row[11],
-            'weather_observed_at': row[12],
-            'air_quality_observed_at': row[13],
+            'state': row[2],
+            'country': row[3],
+            'latitude': row[4],
+            'longitude': row[5],
+            'aqi': row[6],
+            'pm2_5': row[7],
+            'pm10': row[8],
+            'temperature_c': row[9],
+            'humidity_percent': row[10],
+            'wind_speed_kmh': row[11],
+            'precipitation_mm': row[12],
+            'weather_observed_at': row[13],
+            'air_quality_observed_at': row[14],
         })
     return results
 
@@ -359,6 +361,7 @@ def get_city_rankings(connection, metric="aqi", period="24h"):
         SELECT
             c.id AS city_id,
             c.name,
+            c.state,
             c.country,
             AVG(
                 CASE
@@ -377,7 +380,7 @@ def get_city_rankings(connection, metric="aqi", period="24h"):
         LEFT JOIN air_quality_observations a
             ON a.city_id = c.id
             AND a.observed_at >= {prev_start}
-        GROUP BY c.id, c.name, c.country
+        GROUP BY c.id, c.name, c.state, c.country
     """
 
     with connection.cursor() as cursor:
@@ -386,7 +389,7 @@ def get_city_rankings(connection, metric="aqi", period="24h"):
 
     results = []
     for row in rows:
-        city_id, name, country, val, prev_val = row
+        city_id, name, state, country, val, prev_val = row
         if val is None:
             continue
 
@@ -395,6 +398,7 @@ def get_city_rankings(connection, metric="aqi", period="24h"):
         results.append({
             'city_id': city_id,
             'name': name,
+            'state': state,
             'country': country,
             'value': val,
             'previous_value': prev_val,

@@ -279,9 +279,10 @@ def _city_row_to_response(row):
     return {
         "id": row[0],
         "name": row[1],
-        "country": row[2],
-        "latitude": row[3],
-        "longitude": row[4],
+        "state": row[2],
+        "country": row[3],
+        "latitude": row[4],
+        "longitude": row[5],
     }
 
 

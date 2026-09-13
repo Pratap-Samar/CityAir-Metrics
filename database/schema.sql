@@ -1,11 +1,12 @@
 CREATE TABLE cities (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
     country VARCHAR(100) NOT NULL,
     latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
 
-    CONSTRAINT unique_city_country UNIQUE (name, country)
+    CONSTRAINT unique_city_state_country UNIQUE (name, state, country)
 );
 
 
@@ -52,4 +53,3 @@ CREATE TABLE pipeline_runs (
     duration_seconds DOUBLE PRECISION,
     error_message TEXT
 );
-

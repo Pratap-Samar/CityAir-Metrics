@@ -5,12 +5,13 @@ def get_or_create_city(city, connection):
             """
             INSERT INTO cities (
                 name,
+                state,
                 country,
                 latitude,
                 longitude
             )
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (name, country)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (name, state, country)
             DO UPDATE SET
                 latitude = EXCLUDED.latitude,
                 longitude = EXCLUDED.longitude
@@ -18,7 +19,8 @@ def get_or_create_city(city, connection):
             """,
             (
                 city["name"],
-                city["country"],
+                city.get("state", "Test State"),
+                city.get("country", "India"),
                 city["latitude"],
                 city["longitude"],
             ),
@@ -196,6 +198,7 @@ def get_cities(connection):
             SELECT
                 id,
                 name,
+                state,
                 country,
                 latitude,
                 longitude
@@ -214,6 +217,7 @@ def get_city(connection, city_id):
             SELECT
                 id,
                 name,
+                state,
                 country,
                 latitude,
                 longitude

@@ -154,7 +154,7 @@ export const CityPage: React.FC<CityPageProps> = ({
       {/* City Title */}
       <div className="cp-title-section">
         <h1 className="cp-city-name">{city.city_name}</h1>
-        <p className="cp-city-country">{city.country}</p>
+        <p className="cp-city-country">{city.state}</p>
       </div>
 
       {/* Row 1: AQI Metrics */}

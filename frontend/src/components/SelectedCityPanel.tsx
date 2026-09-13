@@ -52,7 +52,7 @@ export const SelectedCityPanel: React.FC<SelectedCityPanelProps> = ({
       <div className="scp-top">
         <div>
           <h2 className="scp-city-name">{city.city_name}</h2>
-          <p className="scp-city-sub">{city.country}</p>
+          <p className="scp-city-sub">{city.state}</p>
         </div>
         <div className="scp-badge">
           <MapPin size={12} /> Selected via map

@@ -9,14 +9,14 @@ def test_get_dashboard_summary():
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities, pipeline_runs CASCADE;")
 
             cursor.execute(
-                "INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;",
-                ("Summary City 1", "Test", 1, 1)
+                "INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
+                ("Summary City 1", 'Test State', "Test", 1, 1)
             )
             c1 = cursor.fetchone()[0]
 
             cursor.execute(
-                "INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;",
-                ("Summary City 2", "Test", 2, 2)
+                "INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
+                ("Summary City 2", 'Test State', "Test", 2, 2)
             )
             c2 = cursor.fetchone()[0]
 
@@ -74,8 +74,8 @@ def test_get_dashboard_map_data():
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
             cursor.execute(
-                "INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;",
-                ("Map City 1", "Test", 1.0, 1.0)
+                "INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
+                ("Map City 1", 'Test State', "Test", 1.0, 1.0)
             )
             c1 = cursor.fetchone()[0]
 
@@ -86,8 +86,8 @@ def test_get_dashboard_map_data():
             )
 
             cursor.execute(
-                "INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;",
-                ("Map City 2", "Test", 2.0, 2.0)
+                "INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;",
+                ("Map City 2", 'Test State', "Test", 2.0, 2.0)
             )
             c2 = cursor.fetchone()[0]
 
@@ -129,7 +129,7 @@ def test_get_time_series_trends():
     try:
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Trend City", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Trend City", 'Test State', "Test", 1.0, 1.0))
             c1 = cursor.fetchone()[0]
 
             # 24h: hourly data (2 observations in same hour should aggregate)
@@ -168,9 +168,9 @@ def test_get_biggest_changes():
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
 
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Change City A", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Change City A", 'Test State', "Test", 1.0, 1.0))
             c_a = cursor.fetchone()[0]
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Change City B", "Test", 2.0, 2.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Change City B", 'Test State', "Test", 2.0, 2.0))
             c_b = cursor.fetchone()[0]
 
             # City A: prev 50, curr 100 -> +50, +100%
@@ -208,9 +208,9 @@ def test_get_city_rankings():
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
 
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Rank City 1", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Rank City 1", 'Test State', "Test", 1.0, 1.0))
             c1 = cursor.fetchone()[0]
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Rank City 2", "Test", 2.0, 2.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Rank City 2", 'Test State', "Test", 2.0, 2.0))
             c2 = cursor.fetchone()[0]
 
             # City 1 AQI 150
@@ -269,7 +269,7 @@ def test_get_time_series_trends_extended():
     try:
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Trend City 2", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Trend City 2", 'Test State', "Test", 1.0, 1.0))
             c1 = cursor.fetchone()[0]
 
             cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '1 hours', %s);", (c1, 20.0))
@@ -313,7 +313,7 @@ def test_dashboard_summary_null_metrics():
     try:
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Null City", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Null City", 'Test State', "Test", 1.0, 1.0))
             c1 = cursor.fetchone()[0]
 
             cursor.execute("INSERT INTO weather_observations (city_id, observed_at, temperature_c) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '3 hours', %s);", (c1, 20.0))
@@ -344,9 +344,9 @@ def test_biggest_changes_zero_previous():
         with connection.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE weather_observations, air_quality_observations, cities CASCADE;")
 
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Zero City", "Test", 1.0, 1.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Zero City", 'Test State', "Test", 1.0, 1.0))
             c_zero = cursor.fetchone()[0]
-            cursor.execute("INSERT INTO cities (name, country, latitude, longitude) VALUES (%s, %s, %s, %s) RETURNING id;", ("Normal City", "Test", 2.0, 2.0))
+            cursor.execute("INSERT INTO cities (name, state, country, latitude, longitude) VALUES (%s, %s, %s, %s, %s) RETURNING id;", ("Normal City", 'Test State', "Test", 2.0, 2.0))
             c_norm = cursor.fetchone()[0]
 
             cursor.execute("INSERT INTO air_quality_observations (city_id, observed_at, us_aqi) VALUES (%s, CURRENT_TIMESTAMP - INTERVAL '26 hours', %s);", (c_zero, 0.0))

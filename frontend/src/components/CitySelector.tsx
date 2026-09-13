@@ -24,7 +24,7 @@ export const CitySelector: React.FC<CitySelectorProps> = ({
       >
         {cities.map((city) => (
           <option key={city.city_id} value={city.city_id}>
-            {city.city_name}, {city.country}
+            {city.city_name}, {city.state}
           </option>
         ))}
       </select>

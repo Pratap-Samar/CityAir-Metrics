@@ -86,15 +86,15 @@ def test_get_latest_weather_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (name, country)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (name, state, country)
                 DO UPDATE SET
                     latitude = EXCLUDED.latitude,
                     longitude = EXCLUDED.longitude
                 RETURNING id;
                 """,
-                ("Analytics Test City", "Test Country", 10.0, 20.0),
+                ("Analytics Test City", 'Test State', "Test Country", 10.0, 20.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -178,15 +178,15 @@ def test_get_latest_air_quality_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
-                ON CONFLICT (name, country)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (name, state, country)
                 DO UPDATE SET
                     latitude = EXCLUDED.latitude,
                     longitude = EXCLUDED.longitude
                 RETURNING id;
                 """,
-                ("Analytics AQ Test City", "Test Country", 11.0, 21.0),
+                ("Analytics AQ Test City", 'Test State', "Test Country", 11.0, 21.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -269,11 +269,11 @@ def test_get_average_weather_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
-                ("Average Weather Test City", "Test Country", 12.0, 22.0),
+                ("Average Weather Test City", 'Test State', "Test Country", 12.0, 22.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -352,11 +352,11 @@ def test_get_average_air_quality_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
-                ("Average AQ Test City", "Test Country", 13.0, 23.0),
+                ("Average AQ Test City", 'Test State', "Test Country", 13.0, 23.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -435,11 +435,11 @@ def test_get_temperature_trend_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
-                ("Temperature Trend Test City", "Test Country", 14.0, 24.0),
+                ("Temperature Trend Test City", 'Test State', "Test Country", 14.0, 24.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -538,11 +538,11 @@ def test_get_pm25_trend_by_city():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
-                ("PM2.5 Trend Test City", "Test Country", 15.0, 25.0),
+                ("PM2.5 Trend Test City", 'Test State', "Test Country", 15.0, 25.0),
             )
 
             city_id = cursor.fetchone()[0]
@@ -620,11 +620,11 @@ def test_get_latest_city_snapshot():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO cities (name, country, latitude, longitude)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO cities (name, state, country, latitude, longitude)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING id;
                 """,
-                ("City Snapshot Test City", "Test Country", 16.0, 26.0),
+                ("City Snapshot Test City", 'Test State', "Test Country", 16.0, 26.0),
             )
 
             city_id = cursor.fetchone()[0]

@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ cities, onCityChange }) => {
                   onClick={() => handleSelect(city.city_id)}
                 >
                   <MapPin size={16} color="#6b7280" />
-                  <span><strong>{city.city_name}</strong>, {city.country}</span>
+                  <span><strong>{city.city_name}</strong>, {city.state}</span>
                 </div>
               ))
             ) : (
