@@ -20,6 +20,8 @@ from processor.analytics import (
     get_latest_weather_by_city,
     VALID_HISTORY_METRICS,
     VALID_HISTORY_PERIODS,
+)
+from processor.dashboard import (
     get_dashboard_summary,
     get_dashboard_map_data,
     get_time_series_trends,
