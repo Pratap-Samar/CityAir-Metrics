@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => onTabChange("analytics")}
-          className={`nav-item ${activeTab === "analytics" ? "active" : ""}`}
+          className={`nav-item ${["analytics", "compare", "rankings"].includes(activeTab) ? "active" : ""}`}
         >
           <BarChart2 size={20} className="nav-icon" />
           <span>Analytics</span>
@@ -88,10 +88,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </button>
 
-        {!isCollapsed && activeTab === "analytics" && (
+        {!isCollapsed && ["analytics", "compare", "rankings"].includes(activeTab) && (
           <div className="nav-sub">
             <div className="nav-sub-item">Compare</div>
-            <div className="nav-sub-item">Rankings</div>
+            <div
+              className={`nav-sub-item ${activeTab === "rankings" ? "active" : ""}`}
+              onClick={() => onTabChange("rankings")}
+            >
+              Rankings
+            </div>
           </div>
         )}
 

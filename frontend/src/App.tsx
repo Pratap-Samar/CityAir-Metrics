@@ -4,6 +4,7 @@ import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { Dashboard } from "./pages/Dashboard";
 import { CityPage } from "./pages/CityPage";
+import { Rankings } from "./pages/Rankings";
 import type { DashboardMapData, DashboardSummary } from "./types";
 
 import { LoadingState } from "./components/LoadingState";
@@ -94,6 +95,8 @@ function App() {
             onBack={() => setActiveTab("dashboard")}
           />
         );
+      case "rankings":
+        return <Rankings onCitySelect={handleCityChange} />;
       default:
         return <div style={{ padding: "24px" }}>Coming Soon: {activeTab}</div>;
     }
