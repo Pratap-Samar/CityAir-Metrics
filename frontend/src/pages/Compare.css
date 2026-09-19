@@ -331,3 +331,19 @@
   color: #dc2626 !important; /* Red */
   font-weight: 700;
 }
+
+/* TABLET RESPONSIVENESS */
+@media (max-width: 1100px) {
+  .compare-page-wrapper {
+    height: auto;
+    overflow-y: visible;
+  }
+  
+  .compare-table-card {
+    overflow-x: auto; /* Allow horizontal scroll for table if too many cities */
+  }
+  
+  .compare-table {
+    min-width: 700px; /* Force table to maintain readability */
+  }
+}

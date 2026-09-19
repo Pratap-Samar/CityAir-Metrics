@@ -42,6 +42,20 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   
+  // Auto-collapse sidebar on tablet screens (<= 1024px)
+  useEffect(() => {
+    const checkSize = () => {
+      if (window.innerWidth <= 1024) {
+        setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
+      }
+    };
+    checkSize(); // initial check
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
+  }, []);
+  
   // Local state for dashboard map selection
   const [dashboardCityId, setDashboardCityId] = useState<number | null>(null);
 

@@ -1043,3 +1043,30 @@ body {
     min-height: 100px;
   }
 }
+
+/* TABLET & IPAD RESPONSIVENESS */
+@media (max-width: 1100px) {
+  .dashboard-page, .city-page-container {
+    height: auto; /* Allow scrolling on tablets instead of squeezing */
+    overflow-y: visible;
+  }
+  
+  /* Give the map and side panel more room if needed, or keep 5fr 5fr since it fits 1024px well */
+  /* But charts in row 3 will get too squeezed if 3 columns */
+  .dashboard-row-3 {
+    grid-template-columns: 1fr 1fr;
+    flex: auto; /* Allow natural height */
+  }
+  
+  .dashboard-row-3 > *:last-child {
+    grid-column: span 2; /* Make the pipeline table span full width below charts */
+  }
+
+  .scp-grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .scp-grid-3 > *:last-child {
+    grid-column: span 2;
+  }
+}

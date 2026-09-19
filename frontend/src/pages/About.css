@@ -313,3 +313,19 @@
     display: none;
   }
 }
+
+/* TABLET RESPONSIVENESS */
+@media (max-width: 1100px) {
+  .about-mission-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .about-middle-grid, .about-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tech-stack-flex {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}
