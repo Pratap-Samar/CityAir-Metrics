@@ -1,11 +1,11 @@
 import React from "react";
 import {
   Home,
-  BarChart2,
   Database,
   Info,
-  ChevronDown,
   Menu,
+  GitCompare,
+  ListOrdered
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -74,31 +74,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          onClick={() => onTabChange("analytics")}
-          className={`nav-item ${["analytics", "compare", "rankings"].includes(activeTab) ? "active" : ""}`}
+          onClick={() => onTabChange("ranking")}
+          className={`nav-item ${activeTab === "ranking" ? "active" : ""}`}
         >
-          <BarChart2 size={20} className="nav-icon" />
-          <span>Analytics</span>
-          {!isCollapsed && (
-            <ChevronDown
-              size={16}
-              className="nav-icon"
-              style={{ marginLeft: "auto" }}
-            />
-          )}
+          <ListOrdered size={20} className="nav-icon" />
+          <span>Rankings</span>
         </button>
 
-        {!isCollapsed && ["analytics", "compare", "rankings"].includes(activeTab) && (
-          <div className="nav-sub">
-            <div className="nav-sub-item">Compare</div>
-            <div
-              className={`nav-sub-item ${activeTab === "rankings" ? "active" : ""}`}
-              onClick={() => onTabChange("rankings")}
-            >
-              Rankings
-            </div>
-          </div>
-        )}
+        <button
+          onClick={() => onTabChange("compare")}
+          className={`nav-item ${activeTab === "compare" ? "active" : ""}`}
+        >
+          <GitCompare size={20} className="nav-icon" />
+          <span>Compare</span>
+        </button>
 
         <button
           onClick={() => onTabChange("pipeline")}

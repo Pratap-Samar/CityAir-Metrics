@@ -709,6 +709,41 @@ def pipeline_status(connection=Depends(get_db)):
 # Dashboard endpoints
 # ============================================================================
 
+
+@app.get("/pipeline/runs")
+def pipeline_runs_list(connection=Depends(get_db)):
+    query = """
+        SELECT
+            id,
+            started_at,
+            completed_at,
+            status,
+            cities_processed,
+            cities_failed,
+            duration_seconds,
+            error_message
+        FROM pipeline_runs
+        ORDER BY started_at DESC
+        LIMIT 10
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        
+    return [
+        {
+            "id": r[0],
+            "started_at": r[1],
+            "completed_at": r[2],
+            "status": r[3],
+            "cities_processed": r[4],
+            "cities_failed": r[5],
+            "duration_seconds": r[6],
+            "error_message": r[7]
+        }
+        for r in rows
+    ]
+
 @app.get("/dashboard/summary")
 def dashboard_summary(connection=Depends(get_db)):
     return get_dashboard_summary(connection)

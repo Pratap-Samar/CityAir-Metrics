@@ -93,3 +93,14 @@ export type ForecastResponse = {
   hourly: ForecastHourly[];
   daily: ForecastDaily[];
 };
+
+export type PipelineRun = {
+  id: number;
+  started_at: string;
+  completed_at: string | null;
+  status: string;
+  cities_processed: number;
+  cities_failed: number;
+  duration_seconds: number | null;
+  error_message: string | null;
+};

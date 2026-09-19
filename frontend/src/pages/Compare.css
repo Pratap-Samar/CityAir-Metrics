@@ -1,0 +1,333 @@
+.compare-page-wrapper {
+  padding: 16px 24px;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden; /* Prevent scrolling, force fit */
+}
+
+/* Ensure headers, table, and footer don't shrink, but let the charts grid take remaining space */
+.compare-page-header,
+.compare-city-bar,
+.compare-table-card,
+.compare-footer-info {
+  flex-shrink: 0;
+}
+
+.compare-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--text-color);
+}
+
+.compare-page-header p {
+  color: var(--muted-text);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* City Bar */
+.compare-city-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.city-chip {
+  display: flex;
+  align-items: center;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 180px;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.chip-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chip-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.chip-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chip-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.chip-state {
+  font-size: 0.75rem;
+  color: var(--muted-text);
+}
+
+.chip-close {
+  background: none;
+  border: none;
+  color: var(--muted-text);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.chip-close:hover {
+  color: var(--text-color);
+}
+
+.add-city-wrapper {
+  position: relative;
+}
+
+.add-city-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 180px;
+  height: 100%;
+  cursor: pointer;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.add-city-btn:hover {
+  background: var(--panel-bg);
+  border-color: #9ca3af;
+}
+
+.add-city-btn span {
+  font-size: 0.75rem;
+  color: var(--muted-text);
+  font-weight: 400;
+}
+
+.add-city-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 250px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 10;
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-city-dropdown-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.add-city-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.add-city-dropdown-item:hover {
+  background: var(--bg-color);
+}
+
+.add-city-dropdown-item strong {
+  display: block;
+  color: var(--text-color);
+}
+
+.add-city-dropdown-item span {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+}
+
+/* Table Card */
+.compare-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.compare-table-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.compare-table-header h3 {
+  margin: 0 0 2px 0;
+  font-size: 1.1rem;
+}
+
+.compare-table-header p {
+  margin: 0;
+  color: var(--muted-text);
+  font-size: 0.85rem;
+}
+
+.compare-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-tr {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.compare-tr:last-child {
+  border-bottom: none;
+}
+
+.compare-td {
+  flex: 1;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.compare-td:first-child {
+  flex: 1.2;
+  color: var(--muted-text);
+  gap: 10px;
+  border-right: 1px solid var(--border-color);
+}
+
+.compare-td.center {
+  justify-content: center;
+  text-align: center;
+}
+
+.compare-th .compare-td.center {
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 12px 20px;
+}
+
+.compare-tr:hover {
+  background: var(--bg-color);
+}
+
+.compare-th:hover {
+  background: transparent;
+}
+
+.aqi-badge-compare {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.aqi-badge-compare.green { background: #dcfce7; color: #166534; }
+.aqi-badge-compare.yellow { background: #fef9c3; color: #854d0e; }
+.aqi-badge-compare.orange { background: #ffedd5; color: #9a3412; }
+.aqi-badge-compare.red { background: #fee2e2; color: #991b1b; }
+.aqi-badge-compare.gray { background: #f3f4f6; color: #374151; }
+.aqi-badge-compare.purple { background: #f3e8ff; color: #6b21a8; }
+
+/* Charts Area */
+.compare-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.compare-chart-box {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.compare-chart-box h3 {
+  margin: 0 0 2px 0;
+  font-size: 1rem;
+}
+
+.compare-chart-box p {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  color: var(--muted-text);
+  flex-shrink: 0;
+}
+
+.compare-chart-inner {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Footer Info */
+.compare-footer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: var(--muted-text);
+  font-size: 0.85rem;
+}
+
+.add-city-search {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+.add-city-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.85rem;
+  outline: none;
+}
+.add-city-search input:focus {
+  border-color: #3b82f6;
+}
+.add-city-options {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.stat-best {
+  color: #16a34a !important; /* Green */
+  font-weight: 700;
+}
+.stat-worst {
+  color: #dc2626 !important; /* Red */
+  font-weight: 700;
+}

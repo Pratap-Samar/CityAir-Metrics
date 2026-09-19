@@ -1,6 +1,8 @@
 .rankings-page {
   padding: 24px;
   max-width: 1200px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .rankings-header h1 {
