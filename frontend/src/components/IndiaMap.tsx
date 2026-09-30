@@ -22,26 +22,23 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
   selectedCityId,
   onCityClick,
 }) => {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark"),
-  );
+  // Use a state to force re-render when theme changes so the CSS class applies
+  const [isDark, setIsDark] = useState(() => !document.body.classList.contains("light-theme"));
 
   useEffect(() => {
-    // Observe class changes
+    // Observe class changes on the body
     const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
+      setIsDark(!document.body.classList.contains("light-theme"));
     });
 
-    observer.observe(document.documentElement, {
+    observer.observe(document.body, {
       attributes: true,
       attributeFilter: ["class"],
     });
     return () => observer.disconnect();
   }, []);
 
-  const tileUrl = isDark
-    ? "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-    : "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   return (
     <div
@@ -56,14 +53,15 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
           height: "100%",
           width: "100%",
           borderRadius: "6px",
-          background: "transparent",
+          background: isDark ? "#111827" : "#f3f4f6",
         }}
         zoomControl={false}
       >
         <TileLayer
           key={isDark ? "dark" : "light"}
           url={tileUrl}
-          attribution="&copy; Esri &mdash; Esri, DeLorme, NAVTEQ"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          className={isDark ? "map-tiles-dark" : "map-tiles-light"}
         />
 
         {cities.map((city) => (
