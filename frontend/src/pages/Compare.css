@@ -221,7 +221,6 @@
 
 .compare-td.center {
   justify-content: center;
-  text-align: center;
 }
 
 .compare-th .compare-td.center {
@@ -347,3 +346,70 @@
     min-width: 700px; /* Force table to maintain readability */
   }
 }
+
+@media (max-width: 768px) {
+  .compare-city-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .city-chip {
+    min-width: 0;
+    padding: 6px 8px;
+  }
+  .chip-name {
+    font-size: 0.8rem;
+  }
+  .chip-state {
+    font-size: 0.65rem;
+  }
+  .compare-table {
+    min-width: 0;
+  }
+  .compare-td {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+  .compare-td:first-child {
+    padding-left: 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+    flex: 1.2;
+  }
+  .compare-td svg {
+    width: 14px;
+    height: 14px;
+  }
+  .aqi-badge {
+    padding: 2px 4px;
+    font-size: 0.65rem;
+    white-space: normal;
+    line-height: 1.1;
+  }
+  .compare-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .compare-chart-card {
+    height: 250px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .compare-th .compare-td.center {
+    align-items: center !important;
+    padding: 8px 2px !important;
+  }
+  .compare-th .compare-td.center > div:first-child {
+    
+    gap: 2px !important;
+  }
+  .compare-th .chip-dot {
+    margin: 0 auto;
+  }
+  .compare-th .chip-state {
+    margin-left: 12px !important;
+  }
+}
+
