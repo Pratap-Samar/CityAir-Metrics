@@ -295,14 +295,7 @@ export const CityPage: React.FC<CityPageProps> = ({
             {forecast5Days.map((day, i) => {
               const DayIcon = day.code === 0 ? ColorfulSun : ColorfulCloudSun;
               return (
-                <div key={i} className="cp-forecast-day" style={{
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "8px",
-                  padding: "12px 16px",
-                  minWidth: "85px",
-                  flex: "0 0 auto",
-                  backgroundColor: "var(--panel-bg)"
-                }}>
+                <div key={i} className="cp-forecast-day">
                   <div className="fd-day-name">{format(day.date, "EEE")}</div>
                   <div className="fd-date">{format(day.date, "MMM d")}</div>
                   <div className="fd-icon-wrapper">

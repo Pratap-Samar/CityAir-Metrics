@@ -1283,10 +1283,32 @@ body {
     flex: none;
   }
   .cp-forecast-grid {
-    overflow-x: auto;
-    padding-bottom: 8px;
-    justify-content: flex-start;
-    gap: 24px;
+    justify-content: space-between;
+    gap: 4px;
+    overflow-x: visible;
+  }
+  .cp-forecast-day {
+    flex: 1;
+    min-width: 0;
+  }
+  .fd-day-name {
+    font-size: 0.85rem;
+  }
+  .fd-date {
+    font-size: 0.65rem;
+  }
+  .fd-max {
+    font-size: 0.8rem;
+  }
+  .fd-min {
+    font-size: 0.65rem;
+  }
+  .fd-cond {
+    font-size: 0.65rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
 }
 .google-map-dark {
