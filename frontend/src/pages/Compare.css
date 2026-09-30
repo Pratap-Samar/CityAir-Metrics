@@ -253,6 +253,7 @@
 
 /* Charts Area */
 .compare-charts-grid {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
@@ -336,6 +337,7 @@
   .compare-page-wrapper {
     height: auto;
     overflow-y: visible;
+    flex-shrink: 0;
   }
   
   .compare-table-card {
@@ -387,10 +389,11 @@
     line-height: 1.1;
   }
   .compare-charts-grid {
+  flex-shrink: 0;
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .compare-chart-card {
+  .compare-chart-box {
     height: 250px;
   }
 }
