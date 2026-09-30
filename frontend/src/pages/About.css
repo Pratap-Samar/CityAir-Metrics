@@ -329,3 +329,14 @@
     gap: 20px;
   }
 }
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+  .about-header-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .about-page-wrapper {
+    padding: 16px;
+  }
+}

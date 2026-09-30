@@ -351,3 +351,13 @@
     min-width: 700px; /* Force table to maintain readability */
   }
 }
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+  .compare-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .compare-page-wrapper {
+    padding: 16px;
+  }
+}

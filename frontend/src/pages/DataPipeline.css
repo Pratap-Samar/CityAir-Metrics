@@ -343,3 +343,13 @@
   }
 }
 
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 768px) {
+  .pipeline-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .pipeline-page-wrapper {
+    padding: 16px;
+  }
+}
