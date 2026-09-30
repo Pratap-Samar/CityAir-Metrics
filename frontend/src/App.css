@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    CityAir Metrics - Exact Light Theme
    ========================================================================== */
 
@@ -87,6 +87,7 @@ body {
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  min-width: 0;
 }
 
 .main-content {
@@ -94,6 +95,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 /* ==========================================================================
@@ -125,6 +127,7 @@ body {
 
 .header-search-input {
   width: 100%;
+  min-width: 0;
   height: 40px;
   padding: 8px 12px 8px 40px;
   background-color: #e5e7eb;
@@ -265,6 +268,7 @@ body {
   align-items: center;
   justify-content: flex-start;
   gap: 20px;
+  min-width: 0;
 }
 
 .sc-icon-circle {
@@ -466,6 +470,7 @@ body {
   gap: 8px;
   font-size: 0.95rem;
   font-weight: 600;
+  flex-wrap: wrap;
 }
 
 .aqi-val-row span.huge {
@@ -1035,55 +1040,245 @@ body {
   background-color: var(--border-color);
 }
 
+.mobile-brand {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-row-2 {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-row-3 {
+    grid-template-columns: 1fr;
+  }
+  .map-card {
+    height: 400px;
+  }
+}
+
 @media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  
+  .sidebar.mobile-open {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 9999;
+    background-color: var(--bg-color);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  }
+
+  .mobile-sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9998;
+  }
+  
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  .mobile-menu-btn {
+    background: none;
+    border: none;
+    color: var(--foreground);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .mobile-logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    white-space: nowrap;
+  }
+  
+  .mobile-logo-accent {
+    color: #3b82f6; /* Blue tint to match mockup */
+  }
+
+  /* Dashboard layout */
+  .dashboard-page,
+  .rankings-page,
+  .compare-page,
+  .pipeline-page,
+  .about-page,
+  .city-page-container {
+    padding: 12px !important;
+  }
+  
+  .dashboard-page {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  .dashboard-row-1 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    flex: none;
+  }
+  
+  .dashboard-row-1 .summary-card {
+    padding: 8px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .dashboard-row-1 .sc-icon-circle {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  .dashboard-row-1 .sc-icon-circle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dashboard-row-1 .sc-content {
+    overflow: hidden;
+  }
+
+  .dashboard-row-1 .sc-title {
+    font-size: 0.5rem;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dashboard-row-1 .sc-value {
+    font-size: 0.9rem;
+    margin-bottom: 1px;
+  }
+
+  .dashboard-row-1 .sc-subtitle {
+    font-size: 0.55rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dashboard-row-2 {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    height: auto;
+  }
+  
+  .map-card {
+    height: 350px;
+    padding: 12px;
+  }
+  
+  .map-card-title {
+    font-size: 0.85rem;
+    left: 12px;
+    top: 12px;
+    max-width: 60%; /* Prevent overlapping the legend */
+  }
+
+  .map-legend-simple {
+    font-size: 0.7rem;
+    right: 12px;
+    top: 12px;
+    gap: 4px;
+  }
+  
+  .legend-item .dot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .dashboard-row-3 {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    height: auto;
+  }
+
+  .trend-card {
+    height: 300px;
+  }
+
+  .pipeline-card {
+    height: 400px;
+  }
+
+  /* Header adjustments */
+  .global-header {
+    padding: 0 12px;
+    gap: 12px;
+  }
+  
+  .header-search-container {
+    width: 100%;
+    max-width: none;
+    flex: 1;
+  }
+
+  .header-datetime {
+    display: none; /* Hide datetime on tiny screens */
+  }
+
+  /* City Page adjustments */
   .cp-row-1 {
     grid-template-columns: 1fr;
   }
   .cp-aqi-card {
     min-height: 100px;
   }
+  .cp-weather-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .scp-grid-3 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .scp-feature {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+  .cp-row-3 {
+    grid-template-columns: 1fr;
+    flex: none;
+  }
+  .cp-forecast-grid {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    justify-content: flex-start;
+    gap: 24px;
+  }
+}
+.google-map-dark {
+  filter: invert(1) hue-rotate(180deg) brightness(0.6) contrast(1.2) sepia(0.2);
 }
 
-/* TABLET & IPAD RESPONSIVENESS */
-@media (max-width: 1100px) {
-  .dashboard-page, .city-page-container {
-    height: auto; /* Allow scrolling on tablets instead of squeezing */
-    overflow-y: visible;
-  }
-  
-  /* Give the map and side panel more room if needed, or keep 5fr 5fr since it fits 1024px well */
-  /* But charts in row 3 will get too squeezed if 3 columns */
-    .dashboard-row-2 {
-    min-height: 450px;
-    flex: auto;
-  }
-  
-  .map-card {
-    min-height: 450px; /* Force the map card to have a height */
-  }
-
-  .dashboard-row-3 {
-    grid-template-columns: 1fr 1fr;
-    flex: auto; /* Allow natural height */
-  }
-  
-  .dashboard-row-3 > *:last-child {
-    grid-column: span 2; /* Make the pipeline table span full width below charts */
-  }
-
-    .dashboard-row-3 {
-    min-height: 240px;
-  }
-  
-  .trend-card {
-    min-height: 240px;
-  }
-
-  .scp-grid-3 {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .scp-grid-3 > *:last-child {
-    grid-column: span 2;
-  }
+.google-map-light {
+  filter: brightness(0.95) saturate(0.8);
 }

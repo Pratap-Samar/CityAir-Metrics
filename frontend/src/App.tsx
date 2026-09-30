@@ -167,19 +167,27 @@ function App() {
     else navigate(`/${tab}`);
   };
 
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
   return (
     <div className="app-shell">
       <Sidebar
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={(tab) => {
+          handleTabChange(tab);
+          setShowMobileMenu(false);
+        }}
         isCollapsed={isCollapsed}
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        showMobileMenu={showMobileMenu}
+        onCloseMobileMenu={() => setShowMobileMenu(false)}
       />
       <div className="app-right">
         <Header
           cities={cities}
           selectedCityId={activeCityId}
           onCityChange={handleCityChange}
+          onMobileMenuToggle={() => setShowMobileMenu(true)}
         />
         <main className="main-content">{renderContent()}</main>
       </div>

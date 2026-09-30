@@ -339,10 +339,6 @@
     overflow-y: visible;
   }
   
-    .compare-charts-grid {
-    min-height: 400px; /* Give the charts explicitly a height since wrapper is now height: auto */
-  }
-
   .compare-table-card {
     overflow-x: auto; /* Allow horizontal scroll for table if too many cities */
   }

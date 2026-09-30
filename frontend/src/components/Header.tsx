@@ -7,9 +7,10 @@ type HeaderProps = {
   cities: DashboardMapData[];
   selectedCityId: number | null;
   onCityChange: (id: number) => void;
+  onMobileMenuToggle: () => void;
 };
 
-export const Header: React.FC<HeaderProps> = ({ cities, onCityChange }) => {
+export const Header: React.FC<HeaderProps> = ({ cities, onCityChange, onMobileMenuToggle }) => {
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -60,6 +61,13 @@ export const Header: React.FC<HeaderProps> = ({ cities, onCityChange }) => {
 
   return (
     <header className="global-header">
+      <div className="mobile-brand">
+        <button className="mobile-menu-btn" onClick={onMobileMenuToggle}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <span className="mobile-logo">CityAir <span className="mobile-logo-accent">Metrics</span></span>
+      </div>
+
       <div className="header-search-container" ref={dropdownRef}>
         <Search size={18} className="search-icon" />
         <input 
@@ -93,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ cities, onCityChange }) => {
         )}
       </div>
 
-      <div className="header-right">
+      <div className="header-right desktop-only">
         <div className="header-datetime">
           <Calendar size={16} color="#6b7280" />
           <span>{dateStr}</span>
