@@ -1053,6 +1053,15 @@ body {
   
   /* Give the map and side panel more room if needed, or keep 5fr 5fr since it fits 1024px well */
   /* But charts in row 3 will get too squeezed if 3 columns */
+    .dashboard-row-2 {
+    min-height: 450px;
+    flex: auto;
+  }
+  
+  .map-card {
+    min-height: 450px; /* Force the map card to have a height */
+  }
+
   .dashboard-row-3 {
     grid-template-columns: 1fr 1fr;
     flex: auto; /* Allow natural height */
@@ -1060,6 +1069,14 @@ body {
   
   .dashboard-row-3 > *:last-child {
     grid-column: span 2; /* Make the pipeline table span full width below charts */
+  }
+
+    .dashboard-row-3 {
+    min-height: 240px;
+  }
+  
+  .trend-card {
+    min-height: 240px;
   }
 
   .scp-grid-3 {
