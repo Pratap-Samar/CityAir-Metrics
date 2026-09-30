@@ -1,23 +1,34 @@
-import React from "react";
-import { Sun, Moon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
 type ThemeToggleProps = {
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
 };
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isCollapsed }) => {
-  const [isDark, setIsDark] = React.useState(true); // Default dark based on our CSS
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  isCollapsed = false,
+}) => {
+  const [isDark, setIsDark] = useState(
+    () => localStorage.getItem("theme") === "dark",
+  );
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
 
   const toggleTheme = () => {
-    // In a real app, you would toggle a class on the body or html tag
-    // and save the preference in localStorage.
-    // For now, we'll just toggle local state to show the icon change.
-    setIsDark(!isDark);
-    
     if (isDark) {
-      document.body.classList.add('light-theme');
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
     } else {
-      document.body.classList.remove('light-theme');
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
     }
   };
 
@@ -33,9 +44,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ isCollapsed }) => {
       ) : (
         <Sun size={20} className="nav-icon" />
       )}
-      <span className="nav-label" style={{ marginLeft: "12px" }}>
-        {isDark ? "Dark Mode" : "Light Mode"}
-      </span>
+      {!isCollapsed && (
+        <span className="nav-label" style={{ marginLeft: "12px" }}>
+          {isDark ? "Dark Mode" : "Light Mode"}
+        </span>
+      )}
     </button>
   );
 };
