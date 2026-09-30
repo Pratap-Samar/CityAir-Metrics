@@ -22,23 +22,26 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
   selectedCityId,
   onCityClick,
 }) => {
-  // Use a state to force re-render when theme changes so the CSS class applies
-  const [isDark, setIsDark] = useState(() => !document.body.classList.contains("light-theme"));
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains("dark"),
+  );
 
   useEffect(() => {
-    // Observe class changes on the body
+    // Observe class changes
     const observer = new MutationObserver(() => {
-      setIsDark(!document.body.classList.contains("light-theme"));
+      setIsDark(document.documentElement.classList.contains("dark"));
     });
 
-    observer.observe(document.body, {
+    observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
     return () => observer.disconnect();
   }, []);
 
-  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tileUrl = isDark
+    ? "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+    : "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 
   return (
     <div
@@ -53,15 +56,14 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
           height: "100%",
           width: "100%",
           borderRadius: "6px",
-          background: isDark ? "#111827" : "#f3f4f6",
+          background: "transparent",
         }}
         zoomControl={false}
       >
         <TileLayer
           key={isDark ? "dark" : "light"}
           url={tileUrl}
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          className={isDark ? "map-tiles-dark" : "map-tiles-light"}
+          attribution="&copy; CARTO"
         />
 
         {cities.map((city) => (

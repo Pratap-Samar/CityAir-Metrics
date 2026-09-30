@@ -1087,12 +1087,3 @@ body {
     grid-column: span 2;
   }
 }
-
-/* Dark mode map tiles (OpenStreetMap invert trick) */
-.map-tiles-dark {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
-}
-
-.map-tiles-light {
-  filter: brightness(0.95); /* Just slightly dim the bright OSM standard map to fit the aesthetic */
-}
