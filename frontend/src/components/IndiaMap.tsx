@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, GeoJSON, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { DashboardMapData } from "../types";
 
@@ -10,11 +10,11 @@ type IndiaMapProps = {
 };
 
 const getAqiColor = (aqi: number | null) => {
-  if (aqi === null) return "#94a3b8"; // Gray for unknown
-  if (aqi <= 50) return "#22c55e"; // Green = Good
-  if (aqi <= 100) return "#eab308"; // Yellow = Moderate
-  if (aqi <= 150) return "#f97316"; // Orange = Unhealthy for sensitive groups
-  return "#ef4444"; // Red = Unhealthy / Very Unhealthy
+  if (aqi === null) return "#94a3b8";
+  if (aqi <= 50) return "#22c55e";
+  if (aqi <= 100) return "#eab308";
+  if (aqi <= 150) return "#f97316";
+  return "#ef4444";
 };
 
 export const IndiaMap: React.FC<IndiaMapProps> = ({
@@ -22,26 +22,23 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
   selectedCityId,
   onCityClick,
 }) => {
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains("dark"),
-  );
+  const [geoData, setGeoData] = useState<any>(null);
+  const [isDark, setIsDark] = useState(() => !document.body.classList.contains("light-theme"));
 
   useEffect(() => {
-    // Observe class changes
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
+    fetch("/india-map-simple.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setGeoData(data);
+      })
+      .catch((err) => console.error("Error loading GeoJSON:", err));
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
+    const observer = new MutationObserver(() => {
+      setIsDark(!document.body.classList.contains("light-theme"));
     });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
-
-  const tileUrl = isDark
-    ? "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
 
   return (
     <div
@@ -60,11 +57,18 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
         }}
         zoomControl={false}
       >
-        <TileLayer
-          key={isDark ? "dark" : "light"}
-          url={tileUrl}
-          attribution="&copy; CARTO"
-        />
+        {geoData && (
+          <GeoJSON
+            key={isDark ? "dark" : "light"}
+            data={geoData}
+            style={() => ({
+              color: isDark ? "#4b5563" : "#d1d5db", // border color
+              weight: 1,
+              fillColor: isDark ? "#1f2937" : "#e5e7eb", // fill color
+              fillOpacity: 0.4,
+            })}
+          />
+        )}
 
         {cities.map((city) => (
           <CircleMarker
@@ -72,8 +76,7 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
             center={[city.latitude, city.longitude]}
             radius={city.city_id === selectedCityId ? 8 : 6}
             pathOptions={{
-              color:
-                city.city_id === selectedCityId ? "#1f2937" : "transparent",
+              color: city.city_id === selectedCityId ? "#ffffff" : "transparent",
               weight: city.city_id === selectedCityId ? 2 : 0,
               fillColor: getAqiColor(city.aqi),
               fillOpacity: 1,
