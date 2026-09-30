@@ -40,8 +40,8 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
   }, []);
 
   const tileUrl = isDark
-    ? "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
+    ? "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+    : "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 
   return (
     <div
@@ -63,7 +63,7 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
         <TileLayer
           key={isDark ? "dark" : "light"}
           url={tileUrl}
-          attribution="&copy; CARTO"
+          attribution="&copy; Esri &mdash; Esri, DeLorme, NAVTEQ"
         />
 
         {cities.map((city) => (
