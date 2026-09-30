@@ -148,7 +148,10 @@ export const CityPage: React.FC<CityPageProps> = ({
         <button onClick={onBack} className="cp-back-btn">
           <ArrowLeft size={16} /> Back to Dashboard
         </button>
-        <div className="cp-last-updated">Latest observation: {lastUpdated}</div>
+        <div className="cp-last-updated" style={{ textAlign: "right" }}>
+          <span style={{ color: "var(--muted-text)" }}>Latest observation:</span><br />
+          <span style={{ color: "var(--foreground)" }}>{lastUpdated}</span>
+        </div>
       </div>
 
       {/* City Title */}
@@ -247,9 +250,9 @@ export const CityPage: React.FC<CityPageProps> = ({
 
           <div className="scp-divider"></div>
 
-          <div className="scp-grid-3">
-            <div className="scp-feature">
-              <ColorfulDroplet size={24} className="scp-feature-icon" />
+          <div className="cp-weather-features-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className="scp-feature" style={{ flex: 1, minWidth: 0, justifyContent: "center" }}>
+              <ColorfulDroplet size={20} className="scp-feature-icon" />
               <div className="scp-feature-text">
                 <div className="scp-feature-label">Humidity</div>
                 <div className="scp-feature-val">
@@ -259,8 +262,9 @@ export const CityPage: React.FC<CityPageProps> = ({
                 </div>
               </div>
             </div>
-            <div className="scp-feature">
-              <ColorfulWind size={24} className="scp-feature-icon" />
+            <div style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
+            <div className="scp-feature" style={{ flex: 1, minWidth: 0, justifyContent: "center", paddingLeft: "8px" }}>
+              <ColorfulWind size={20} className="scp-feature-icon" />
               <div className="scp-feature-text">
                 <div className="scp-feature-label">Wind</div>
                 <div className="scp-feature-val">
@@ -270,10 +274,11 @@ export const CityPage: React.FC<CityPageProps> = ({
                 </div>
               </div>
             </div>
-            <div className="scp-feature">
-              <ColorfulCloudRain size={24} className="scp-feature-icon" />
+            <div style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
+            <div className="scp-feature" style={{ flex: 1, minWidth: 0, justifyContent: "center", paddingLeft: "8px" }}>
+              <ColorfulCloudRain size={20} className="scp-feature-icon" />
               <div className="scp-feature-text">
-                <div className="scp-feature-label">Precipitation</div>
+                <div className="scp-feature-label" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Precipitation</div>
                 <div className="scp-feature-val">
                   {city.precipitation_mm !== null
                     ? `${city.precipitation_mm} mm`
@@ -290,7 +295,14 @@ export const CityPage: React.FC<CityPageProps> = ({
             {forecast5Days.map((day, i) => {
               const DayIcon = day.code === 0 ? ColorfulSun : ColorfulCloudSun;
               return (
-                <div key={i} className="cp-forecast-day">
+                <div key={i} className="cp-forecast-day" style={{
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  padding: "12px 16px",
+                  minWidth: "85px",
+                  flex: "0 0 auto",
+                  backgroundColor: "var(--panel-bg)"
+                }}>
                   <div className="fd-day-name">{format(day.date, "EEE")}</div>
                   <div className="fd-date">{format(day.date, "MMM d")}</div>
                   <div className="fd-icon-wrapper">
