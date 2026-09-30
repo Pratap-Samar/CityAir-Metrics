@@ -66,6 +66,7 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
       style={{ height: "100%", width: "100%" }}
     >
       <MapContainer
+        key={isMobile ? "mobile-map" : "desktop-map"}
         center={isMobile ? [23.5, 82.0] : [22.5, 78.5]}
         zoom={isMobile ? 3.8 : 4.5}
         minZoom={3.5} // Allow zooming out more on mobile
