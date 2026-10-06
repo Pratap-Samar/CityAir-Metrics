@@ -4,7 +4,7 @@ import {
   CheckCircle2, Clock, Calendar, Database, Cloud, Wind, 
   Settings 
 } from 'lucide-react';
-import type { DashboardSummary, PipelineRun, PipelineStatus } from '../types';
+import type { DashboardSummary, PipelineRun } from '../types';
 import { API_URL } from '../App';
 
 interface DataPipelineProps {
@@ -13,26 +13,16 @@ interface DataPipelineProps {
 
 export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
   const [runs, setRuns] = useState<PipelineRun[]>([]);
-  const [status, setStatus] = useState<PipelineStatus | null>(null);
-  const [loading, setLoading] = useState(true); console.log(loading, status);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [runsRes, statusRes] = await Promise.all([
-          fetch(`${API_URL}/pipeline/runs`),
-          fetch(`${API_URL}/dashboard/pipeline`)
-        ]);
+        const runsRes = await fetch(`${API_URL}/pipeline/runs`);
         if (runsRes.ok) {
           setRuns(await runsRes.json());
         }
-        if (statusRes.ok) {
-          setStatus(await statusRes.json());
-        }
       } catch (err) {
         console.error("Failed to fetch pipeline data", err);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();
