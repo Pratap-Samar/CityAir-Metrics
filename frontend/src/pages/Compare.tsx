@@ -4,7 +4,7 @@ import type { DashboardMapData } from "../types";
 import "./Compare.css";
 import { 
   Wind, Droplets, Thermometer, CloudRain, Activity, 
-  X, Info, BarChart2, CheckCircle2
+  X, BarChart2, CheckCircle2
 } from "lucide-react";
 import {
   BarChart,
@@ -325,13 +325,6 @@ export const Compare: React.FC<CompareProps> = ({ cities }) => {
         </>
       )}
 
-      <div className="compare-footer-info">
-        <Info size={20} color="#3b82f6" />
-        <div>
-          Showing latest available data for the selected cities.<br/>
-          Click on a city name to view the full city report.
-        </div>
-      </div>
     </div>
   );
 };
