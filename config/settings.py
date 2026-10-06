@@ -30,3 +30,6 @@ AIR_QUALITY_API_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 
 API_TIMEOUT_SECONDS = 30
 API_MAX_RETRIES = 3
+
+CORS_ORIGINS_STR = os.environ.get("CORS_ORIGINS", "http://localhost:5173")
+CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_STR.split(",") if origin.strip()]

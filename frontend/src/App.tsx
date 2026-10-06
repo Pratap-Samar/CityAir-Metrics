@@ -14,7 +14,7 @@ import type { DashboardMapData, DashboardSummary } from "./types";
 import { LoadingState } from "./components/LoadingState";
 import { ErrorState } from "./components/ErrorState";
 
-export const API_URL = "http://localhost:8000";
+export const API_URL = "/api";
 
 function CityPageRouteWrapper({ cities }: { cities: DashboardMapData[] }) {
   const { cityName } = useParams<{ cityName: string }>();

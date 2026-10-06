@@ -5,7 +5,7 @@ import { LoadingState } from "../components/LoadingState";
 import { ErrorState } from "../components/ErrorState";
 import "./Rankings.css";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "/api";
 
 type RankingsProps = {
   onCitySelect: (id: number) => void;

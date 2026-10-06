@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import type { DashboardMapData, TimeSeriesTrend } from "../types";
+import type { DashboardMapData, TimeSeriesTrend, ForecastDaily } from "../types";
 import { getWeatherCondition } from "../utils/weather";
 import { HistoricalChart } from "../components/HistoricalChart";
 
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import {
   ColorfulSun,
   ColorfulCloudSun,
@@ -23,7 +23,7 @@ type CityPageProps = {
   onBack: () => void;
 };
 
-const API_URL = "http://localhost:8000";
+const API_URL = "/api";
 
 export const CityPage: React.FC<CityPageProps> = ({
   cityId,
@@ -70,22 +70,33 @@ export const CityPage: React.FC<CityPageProps> = ({
     fetchTempTrend();
   }, [cityId, tempPeriod]);
 
-  // Mock forecast data for 5 days (deterministic for purity)
-  const forecast5Days = useMemo(() => {
-    const today = new Date();
-    const baseTemp = city?.temperature_c || 25;
-    const offsets = [3, 1, 4, 2, 5];
-    return Array.from({ length: 5 }).map((_, i) => {
-      const d = addDays(today, i);
-      return {
-        date: d,
-        high: Math.round(baseTemp + offsets[i]),
-        low: Math.round(baseTemp - offsets[i] - 2),
-        condition: i % 2 === 0 ? "Sunny" : "Partly Cloudy",
-        code: i % 2 === 0 ? 0 : 1,
-      };
-    });
-  }, [city?.temperature_c]);
+  const [forecastLoading, setForecastLoading] = useState(true);
+  const [forecastError, setForecastError] = useState<string | null>(null);
+  const [forecastDaily, setForecastDaily] = useState<ForecastDaily[]>([]);
+
+  React.useEffect(() => {
+    if (!cityId) return;
+
+    const fetchForecast = async () => {
+      // reset state when city changes
+      setForecastLoading(true);
+      setForecastError(null);
+      setForecastDaily([]);
+      try {
+        const res = await fetch(`${API_URL}/weather/forecast/${cityId}`);
+        if (!res.ok) throw new Error("Failed to fetch forecast");
+        const data = await res.json();
+        setForecastDaily(data.daily || []);
+      } catch (err) {
+        setForecastError(err instanceof Error ? err.message : "Error fetching forecast");
+      } finally {
+        setForecastLoading(false);
+      }
+    };
+    fetchForecast();
+  }, [cityId]);
+
+
 
   if (!city) {
     return (
@@ -291,23 +302,43 @@ export const CityPage: React.FC<CityPageProps> = ({
 
         <div className="dashboard-card cp-forecast-card">
           <h3 className="section-title">Forecast (Next 5 Days)</h3>
-          <div className="cp-forecast-grid">
-            {forecast5Days.map((day, i) => {
-              const DayIcon = day.code === 0 ? ColorfulSun : ColorfulCloudSun;
-              return (
-                <div key={i} className="cp-forecast-day">
-                  <div className="fd-day-name">{format(day.date, "EEE")}</div>
-                  <div className="fd-date">{format(day.date, "MMM d")}</div>
-                  <div className="fd-icon-wrapper">
-                    <DayIcon size={40} />
+          {forecastLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "150px", color: "var(--muted-text)" }}>
+              Loading forecast...
+            </div>
+          ) : forecastError ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "150px", color: "var(--red-color, #c5240e)" }}>
+              {forecastError}
+            </div>
+          ) : forecastDaily.length === 0 ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "150px", color: "var(--muted-text)" }}>
+              No forecast available
+            </div>
+          ) : (
+            <div className="cp-forecast-grid">
+              {forecastDaily.slice(0, 5).map((day, i) => {
+                const dayDate = new Date(day.time);
+                const condition = getWeatherCondition(day.weather_code);
+                
+                let DayIcon = ColorfulCloudSun;
+                if (day.weather_code === 0) DayIcon = ColorfulSun;
+                else if (day.weather_code !== null && (day.weather_code >= 51 && day.weather_code <= 99)) DayIcon = ColorfulCloudRain;
+                
+                return (
+                  <div key={i} className="cp-forecast-day">
+                    <div className="fd-day-name">{format(dayDate, "EEE")}</div>
+                    <div className="fd-date">{format(dayDate, "MMM d")}</div>
+                    <div className="fd-icon-wrapper">
+                      <DayIcon size={40} />
+                    </div>
+                    <div className="fd-max">{day.temperature_2m_max !== null ? Math.round(day.temperature_2m_max) : "-"}&deg;C</div>
+                    <div className="fd-min">{day.temperature_2m_min !== null ? Math.round(day.temperature_2m_min) : "-"}&deg;C</div>
+                    <div className="fd-cond">{condition}</div>
                   </div>
-                  <div className="fd-max">{day.high}&deg;C</div>
-                  <div className="fd-min">{day.low}&deg;C</div>
-                  <div className="fd-cond">{day.condition}</div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

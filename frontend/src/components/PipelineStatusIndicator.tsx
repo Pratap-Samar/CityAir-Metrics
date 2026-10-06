@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { PipelineStatus } from "../types";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "/api";
 
 export const PipelineStatusIndicator: React.FC = () => {
   const [status, setStatus] = useState<PipelineStatus | null>(null);

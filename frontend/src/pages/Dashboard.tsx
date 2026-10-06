@@ -9,7 +9,7 @@ import {
   ColorfulBuildingIcon,
 } from "../components/ColorfulIcons";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "/api";
 
 type DashboardProps = {
   cities: DashboardMapData[];
