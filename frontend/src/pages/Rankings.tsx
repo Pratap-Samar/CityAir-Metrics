@@ -69,40 +69,43 @@ export const Rankings: React.FC<RankingsProps> = ({ onCitySelect }) => {
 
   const renderTable = (cities: CityRanking[]) => {
     return (
-      <table className="rankings-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>City</th>
-            <th>State</th>
-            <th>AQI</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cities.map((city, idx) => {
-            const { label, className, value } = getAqiDetails(city.value);
-            return (
-              <tr key={city.city_id} onClick={() => onCitySelect(city.city_id)}>
-                <td className="rank-idx">{idx + 1}</td>
-                <td className="rank-city">{city.name}</td>
-                <td className="rank-state">{city.state}</td>
-                <td className="rank-value">{value}</td>
-                <td>
-                  <span className={`aqi-badge ${className}`}>{label}</span>
+      <div className="rankings-table-wrapper">
+        <table className="rankings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>City</th>
+              <th>State</th>
+              <th>AQI</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cities.map((city, idx) => {
+              const { label, className, value } = getAqiDetails(city.value);
+              return (
+                <tr key={city.city_id} onClick={() => onCitySelect(city.city_id)}>
+                  <td className="rank-idx">{idx + 1}</td>
+                  <td className="rank-city">{city.name}</td>
+                  <td className="rank-state">{city.state}</td>
+                  <td className="rank-value">{value}</td>
+                  <td>
+                    <span className={`aqi-badge ${className}`}>{label}</span>
+                  </td>
+                </tr>
+              );
+            })}
+            {cities.length === 0 && (
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+                  No data available
                 </td>
               </tr>
-            );
-          })}
-          {cities.length === 0 && (
-            <tr>
-              <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
-                No data available
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+        <div className="mobile-table-scroll-hint">Swipe to view AQI and status</div>
+      </div>
     );
   };
 

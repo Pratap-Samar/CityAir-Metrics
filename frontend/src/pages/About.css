@@ -329,3 +329,30 @@
     gap: 20px;
   }
 }
+
+@media (max-width: 480px) {
+  .about-page-wrapper {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .about-header-section,
+  .about-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .about-quote-box,
+  .about-card {
+    padding: 16px;
+  }
+
+  .footer-right {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .separator {
+    margin: 0 6px;
+  }
+}

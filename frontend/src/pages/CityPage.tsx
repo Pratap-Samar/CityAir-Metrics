@@ -273,7 +273,7 @@ export const CityPage: React.FC<CityPageProps> = ({
                 </div>
               </div>
             </div>
-            <div style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
+            <div className="cp-feature-separator" style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
             <div className="scp-feature" style={{ flex: 1, minWidth: 0, justifyContent: "center", paddingLeft: "8px" }}>
               <ColorfulWind size={20} className="scp-feature-icon" />
               <div className="scp-feature-text">
@@ -285,7 +285,7 @@ export const CityPage: React.FC<CityPageProps> = ({
                 </div>
               </div>
             </div>
-            <div style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
+            <div className="cp-feature-separator" style={{ width: "1px", height: "30px", backgroundColor: "var(--border-color)" }}></div>
             <div className="scp-feature" style={{ flex: 1, minWidth: 0, justifyContent: "center", paddingLeft: "8px" }}>
               <ColorfulCloudRain size={20} className="scp-feature-icon" />
               <div className="scp-feature-text">

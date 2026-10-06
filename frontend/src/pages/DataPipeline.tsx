@@ -207,6 +207,7 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
                   ))}
                 </tbody>
               </table>
+              <div className="mobile-table-scroll-hint">Swipe to view all run details</div>
             </div>
           </div>
 

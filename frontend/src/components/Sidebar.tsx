@@ -133,7 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>About</span>
         </button>
 
-        <ThemeToggle isCollapsed={isCollapsed} />
+        <ThemeToggle isCollapsed={isCollapsed && !showMobileMenu} />
       </nav>
     </aside>
     </>

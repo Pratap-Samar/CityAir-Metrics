@@ -106,6 +106,14 @@
   border-collapse: collapse;
 }
 
+.rankings-table-wrapper {
+  min-width: 0;
+}
+
+.mobile-table-scroll-hint {
+  display: none;
+}
+
 .rankings-table th {
   text-align: left;
   padding: 12px 8px;
@@ -182,5 +190,56 @@
 @media (max-width: 1024px) {
   .rankings-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .rankings-page {
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .rankings-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .ranking-tab {
+    min-height: 44px;
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+
+  .ranking-card {
+    min-width: 0;
+    padding: 16px;
+  }
+
+  .ranking-card-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .ranking-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+  }
+
+  .rankings-table-wrapper {
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .mobile-table-scroll-hint {
+    display: block;
+    padding: 8px 0 2px;
+    color: var(--muted-text);
+    font-size: 0.75rem;
+  }
+
+  .rankings-table {
+    min-width: 390px;
   }
 }
