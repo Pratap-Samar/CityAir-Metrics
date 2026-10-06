@@ -236,7 +236,7 @@ def _get_city_coordinates(city_id: int, connection):
             detail="City not found",
         )
 
-    return city[3], city[4]
+    return city[4], city[5]
 
 
 
