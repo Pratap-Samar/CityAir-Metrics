@@ -200,8 +200,9 @@
   }
 
   .rankings-tabs {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
     width: 100%;
   }
 
@@ -209,6 +210,7 @@
     min-height: 44px;
     padding: 6px 4px;
     font-size: 0.8rem;
+    flex: 1 0 auto;
   }
 
   .ranking-card {

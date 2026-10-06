@@ -1325,13 +1325,15 @@ body {
     flex: none;
   }
   .cp-forecast-grid {
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 4px;
-    overflow-x: visible;
+    overflow-x: auto;
+    padding-bottom: 8px;
   }
   .cp-forecast-day {
     flex: 1;
-    min-width: 0;
+    min-width: 85px;
+    flex-shrink: 0;
   }
   .fd-day-name {
     font-size: 0.85rem;
@@ -1379,7 +1381,7 @@ body {
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 480px) {
   .global-header {
     height: auto;
     min-height: 64px;

@@ -366,7 +366,7 @@
     font-size: 0.65rem;
   }
   .compare-table {
-    min-width: 0;
+    min-width: 500px;
   }
   .compare-td {
     padding: 8px 4px;
