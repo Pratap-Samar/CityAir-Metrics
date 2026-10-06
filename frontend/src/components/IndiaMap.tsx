@@ -17,6 +17,8 @@ const getAqiColor = (aqi: number | null) => {
   return "#ef4444"; // Red = Unhealthy / Very Unhealthy
 };
 
+import type { GeoJsonObject } from "geojson";
+
 export const IndiaMap: React.FC<IndiaMapProps> = ({
   cities,
   selectedCityId,
@@ -25,7 +27,7 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains("dark"),
   );
-  const [geoData, setGeoData] = useState<any>(null);
+  const [geoData, setGeoData] = useState<GeoJsonObject | null>(null);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {

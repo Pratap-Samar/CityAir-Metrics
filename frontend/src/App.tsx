@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from "react-router-dom";
 import "./App.css";
 import { Sidebar } from "./components/Sidebar";
@@ -59,7 +59,7 @@ function App() {
   // Local state for dashboard map selection
   const [dashboardCityId, setDashboardCityId] = useState<number | null>(null);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -82,9 +82,10 @@ function App() {
       setSummary(summaryData);
 
       // Initialize dashboard selected city
-      if (citiesArray.length > 0 && dashboardCityId === null) {
+      if (citiesArray.length > 0) {
         const delhi = citiesArray.find((c: DashboardMapData) => c.city_name === "New Delhi" || c.city_name === "Delhi");
-        setDashboardCityId(delhi ? delhi.city_id : citiesArray[0].city_id);
+        const defaultId = delhi ? delhi.city_id : citiesArray[0].city_id;
+        setDashboardCityId(prev => prev === null ? defaultId : prev);
       }
 
     } catch (err: Error | unknown) {
@@ -92,12 +93,20 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line
-    fetchDashboardData();
-  }, []);
+    let mounted = true;
+    const init = async () => {
+      if (mounted) {
+        await fetchDashboardData();
+      }
+    };
+    init();
+    return () => {
+      mounted = false;
+    };
+  }, [fetchDashboardData]);
 
   const handleCityChange = (id: number) => {
     const city = cities.find(c => c.city_id === id);
