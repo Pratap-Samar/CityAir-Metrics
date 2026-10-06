@@ -1,313 +1,245 @@
 # CityAir Metrics
 
-CityAir Metrics is a data-engineering and full-stack application that monitors, processes, and visualizes air quality and weather conditions across India's state capitals.
+CityAir Metrics is an environmental monitoring and data-engineering platform focused on India's 36 state and union territory capitals. It integrates hourly weather and air quality (AQI) data ingestion, an analytics layer, RESTful API services, and a responsive React dashboard. The system is fully containerized using Docker, relies on PostgreSQL for persistent storage, and uses Apache Airflow for pipeline orchestration, with continuous integration driven by GitHub Actions.
 
-Features include:
+## Features
 
-- SQL-based analytics layer
-- FastAPI REST API
-- React + TypeScript dashboard with Recharts and Leaflet Map
-- Seamless Light/Dark Mode UI with dynamic theme-switching
-- Automated tests with Pytest and isolated Test Databases
-- Dockerized PostgreSQL development environment
-- GitHub Actions CI with a PostgreSQL service
-- Frontend-to-backend integration through REST APIs
-
----
+- **Extensive Coverage**: Monitors 36 Indian state and UT capitals.
+- **Automated Ingestion**: Scheduled hourly retrieval of weather and air-quality data.
+- **Historical Observations**: Persists time-series data to track environmental shifts over time.
+- **Interactive Dashboard**: Visualizes national AQI mapping and top-level summary metrics.
+- **City Reports**: Provides localized current conditions and a 5-day weather forecast.
+- **AQI Rankings**: Highlights the best and worst cities by air quality over daily, weekly, and monthly periods.
+- **City Comparison**: Allows side-by-side environmental analysis for up to 4 cities simultaneously.
+- **Trend Analysis**: Visualizes multi-day trends in air quality and temperature.
+- **Pipeline Monitoring**: Exposes pipeline execution status and metadata natively in the dashboard.
+- **Responsive Frontend**: Seamless layout scaling from desktop to mobile screens with Light/Dark mode.
+- **Application Backbone**: Powered by FastAPI, PostgreSQL, and orchestrated via Apache Airflow in Docker.
 
 ## Architecture
 
-```text
-                Open-Meteo APIs
-                /           \
-               /             \
-          Weather         Air Quality
-               \             /
-                \           /
-                 ↓         ↓
-               Python Ingestion
-                   Pipeline
-                      ↓
-             Transform + Validate
-                      ↓
-                      ↓
-                  PostgreSQL
-                      ↓
-                      ↓
-                 Analytics Layer
-                      ↓
-                      ↓
-                   FastAPI
-                      ↓
-                      ↓
-               React + TypeScript
-                   Dashboard
+```mermaid
+flowchart TD
+    subgraph External
+        OM[Open-Meteo APIs]
+    end
+
+    subgraph Orchestration
+        Airflow[Apache Airflow DAG]
+    end
+
+    subgraph Data Engineering
+        PI[Python Ingestion Pipeline]
+        DB[(PostgreSQL)]
+    end
+
+    subgraph Application
+        API[FastAPI Backend]
+        Nginx[Nginx Reverse Proxy]
+        React[React + TypeScript UI]
+    end
+
+    Airflow -- Triggers Hourly --> PI
+    OM -- JSON Responses --> PI
+    PI -- Persists Data --> DB
+    API -- Queries --> DB
+    Nginx -- Proxies /api --> API
+    Nginx -- Serves --> React
+    React -- API Calls --> Nginx
 ```
 
----
+*Continuous Integration (CI) is implemented separately via **GitHub Actions**, automatically testing the backend against a disposable PostgreSQL service.*
+
+## Screenshots
+
+### Dashboard
+![CityAir Metrics Dashboard](images/Screenshot%202026-10-06%20230635.png)
+
+### City Report
+![City Report](images/Screen%20Shot%202026-10-06%20at%2023.04.55.png)
+
+### Rankings
+![Rankings](images/Screenshot%202026-10-06%20230704.png)
+
+### Compare Cities
+![Compare Cities](images/Screen%20Shot%202026-10-06%20at%2023.06.07.png)
+
+### Data Pipeline
+![Data Pipeline](images/Screenshot%202026-10-06%20230652.png)
 
 ## Tech Stack
 
-| Area             | Technologies                                    |
-| ---------------- | ----------------------------------------------- |
-| Data Engineering | Python, Requests, Pydantic                      |
-| Database         | PostgreSQL 16, Psycopg                          |
-| Backend          | FastAPI, Uvicorn                                |
-| Frontend         | React, TypeScript, Vite, CSS, Leaflet, Recharts |
-| Testing          | Pytest, python-dotenv                           |
-| DevOps           | Docker, Docker Compose, GitHub Actions          |
-| CI               | GitHub Actions                                  |
-| Data Source      | Open-Meteo                                      |
-
----
-
-## Data Engineering
-
-The core pipeline follows:
-
-```text
-API
- ↳
-Extract
- ↳
-Transform
- ↳
-Validate
- ↳
-Load
- ↳
-Analytics
-```
-
-The pipeline processes weather and air-quality observations for configured cities.
-
-It includes:
-
-- API request handling
-- Transformation into application models
-- Data validation
-- Database upserts
-- Transaction handling
-- Per-city failure handling
-- Pipeline execution tracking
-- Timestamp/freshness validation
-
-The database uses uniqueness constraints together with upsert logic to make repeated pipeline executions safe.
-
----
-
-## Database
-
-PostgreSQL currently contains four main tables:
-
-```text
-cities
-weather_observations
-air_quality_observations
-pipeline_runs
-```
-
-The schema separates city metadata, weather observations, air-quality observations, and pipeline execution metadata.
-
-This allows the ingestion layer and analytics layer to operate independently while maintaining relational integrity.
-
----
-
-## Analytics
-
-The analytics layer provides SQL-based processing over the stored observations.
-
-Current functionality includes:
-
-- Latest weather by city
-- Latest air quality by city
-- Average weather metrics
-- Average air-quality metrics
-- Temperature trends
-- PM2.5 trends
-- Combined city snapshots
-
-The analytics layer is kept separate from the ingestion pipeline so that data collection and analytical processing remain independently testable.
-
----
-
-## Backend API
-
-FastAPI exposes the processed data to the frontend.
-
-### Current endpoints
-
-```text
-GET /
-GET /cities
-GET /weather/latest
-GET /air-quality/latest
-GET /analytics
-GET /dashboard/map
-GET /pipeline/runs
-```
-
-The `/dashboard/map` endpoint provides a streamlined list of cities strictly mapped for the interactive map. The API gracefully handles fetching historical trends and tracking the success of background ingestion scripts.
-
-Interactive Swagger documentation is available at:
-
-```text
-http://localhost:8000/docs
-```
-
----
-
-## Frontend
-
-The frontend is built with React, TypeScript, and Vite. It is highly responsive and adapts to 100vh constraints to prevent scrolling on the main view.
-
-Current functionality:
-
-- **Interactive Map**: Built with React-Leaflet and customized CARTO tiles that intelligently adapt between Light/Dark mode.
-- **Dynamic Charting**: Recharts-powered area graphs displaying India's Temperature and AQI trends seamlessly filtered by 24H, 7D, or 30D intervals.
-- **City Panel Details**: Auto-updating weather (temperature, humidity, precipitation, wind) and AQI metrics with dynamic color-coded indicator badges.
-- **Pipeline Monitoring**: Real-time status list of backend Open-Meteo data ingestion tasks.
-- **Theme Switching**: Dedicated Dark/Light mode toggle that updates CSS variables and map-rendering tiles immediately.
-- **Kolkata Time Clock**: A live, globally-synced clock widget set exactly to `Asia/Kolkata` timezone.
-
----
-
-## DevOps
-
-DevOps is part of the project's development workflow and infrastructure.
-
-### Docker
-
-PostgreSQL runs through Docker Compose, providing a reproducible local database environment.
-
-```bash
-docker compose up -d
-```
-
-### CI & Isolated Testing
-
-GitHub Actions runs the automated test suite on repository pushes and pull requests.
-
-The CI environment provisions PostgreSQL as a service, initializes the project schema, installs dependencies, and runs the tests.
-
-Locally, the project explicitly isolates development and test environments by spinning up a secondary `cityair_test` database. This prevents `pytest` from mutating or polluting the local `cityair` development dashboard.
-
-```bash
-python -m pytest
-```
-
----
-
-# Development Progress
-
-The project is being developed incrementally, with each major layer being implemented and verified before moving to the next.
-
-## Completed
-
-- [x] Project structure and Python environment
-- [x] PostgreSQL database setup
-- [x] Database schema
-- [x] Weather API client
-- [x] Air-quality API client
-- [x] Data models
-- [x] Data validation
-- [x] Database repositories
-- [x] Pipeline execution tracking
-- [x] Ingestion pipeline
-- [x] Analytics layer
-- [x] FastAPI application
-- [x] API response models
-- [x] CORS configuration
-- [x] Automated tests
-- [x] Database Isolation for Pytest
-- [x] GitHub Actions CI
-- [x] React + TypeScript frontend
-- [x] Interactive Leaflet Map
-- [x] Dark/Light Mode Theming
-- [x] Interactive Temperature / PM2.5 charts
-- [x] Pipeline Status Monitoring
-- [x] Frontend Refinement and UX Improvements
-
-## Upcoming
-
-- [ ] Further expansion of Analytics features (e.g. Compare / Rankings)
-- [ ] Automated Pipeline Cron Jobs
-- [ ] Add more granular historical data fetching directly to frontend charts
-
-The roadmap will evolve as the project develops.
-
----
-
-## Running Locally
-
-### Backend
-
-Create and activate the Python environment:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start PostgreSQL:
-
-```bash
-docker compose up -d
-```
-
-Run the ingestion pipeline:
-
-```bash
-python -m ingestion.pipeline
-```
-
-Start FastAPI:
-
-```bash
-uvicorn api.main:app --reload
-```
-
-Backend: `http://localhost:8000`  
-Swagger: `http://localhost:8000/docs`
-
-### Frontend
-
-From the `frontend` directory:
-
-```bash
-npm install
-npm run dev
-```
-
-Frontend: `http://localhost:5173`
-
----
+| Layer | Technology |
+|---|---|
+| **Frontend** | React, TypeScript, Vite |
+| **Backend** | FastAPI, Python |
+| **Database** | PostgreSQL |
+| **Data Ingestion** | Python, Open-Meteo |
+| **Orchestration** | Apache Airflow |
+| **Reverse Proxy** | Nginx |
+| **Containers** | Docker, Docker Compose |
+| **Testing** | Pytest |
+| **CI** | GitHub Actions |
 
 ## Project Structure
 
 ```text
-CityAir Metrics/
-├── api/                    # FastAPI application
-├── config/                 # Configuration
-├── database/               # Schema, connection and repositories
-├── ingestion/              # API clients, models, validation and pipeline
-├── processor/              # Analytics
-├── tests/                  # Automated tests
-├── frontend/               # React + TypeScript dashboard
-├── docker/                 # Docker-related files
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── docker-compose.yml
-├── requirements.txt
-├── run_pipeline.bat
-└── README.md
+cityair-metrics/
+├── api/             # FastAPI backend implementation (routes, models)
+├── config/          # Centralized configuration and environment loading
+├── dags/            # Apache Airflow DAG definitions
+├── database/        # PostgreSQL connection pool and query repositories
+├── docker/          # Dockerfiles for frontend, backend, and airflow
+├── frontend/        # React + TypeScript single-page application
+├── ingestion/       # Python data pipeline for Open-Meteo integration
+├── processor/       # Data transformation and normalization logic
+├── tests/           # Pytest integration and unit test suite
+└── .github/         # GitHub Actions workflows for continuous integration
 ```
+
+## Data Pipeline
+
+CityAir Metrics relies on a data extraction, processing, and persistence pipeline:
+
+1. **Airflow** triggers the hourly execution DAG.
+2. The DAG invokes the modular **Python ingestion pipeline** (`ingestion.pipeline`).
+3. The ingestion layer fetches raw weather and air-quality data from **Open-Meteo**.
+4. The processor normalizes the data and persists it reliably into **PostgreSQL**.
+5. The **FastAPI** backend exposes processed analytics through REST endpoints.
+6. The **React** frontend dynamically renders dashboards, forecasts, rankings, and trends based on API responses.
+
+## Airflow Orchestration
+
+Apache Airflow is responsible for scheduling and orchestrating the existing ingestion logic.
+
+**DAG configuration (`cityair_hourly_ingestion`):**
+- **Schedule:** `@hourly`
+- **Catchup:** `False`
+- **Concurrency:** `max_active_runs=1`
+- **Resilience:** 2 retries with a 5-minute delay.
+- **Timeout:** 15 minutes execution timeout.
+- **Execution:** Invokes `python -m ingestion.pipeline`.
+
+## Docker Architecture
+
+The entire stack is orchestrated via `docker-compose.yml`, deploying the following core services:
+
+- **postgres**: The persistent database engine (PostgreSQL 16).
+- **backend**: The FastAPI application serving REST endpoints.
+- **frontend**: The Nginx web server acting as a reverse proxy for `/api` requests and serving the React bundle.
+- **airflow-init**: A bootstrapper for database migrations and Airflow user creation.
+- **airflow-scheduler**: Manages time-based DAG execution.
+- **airflow-webserver**: Exposes the Airflow UI on port 8080.
+
+## API Endpoints
+
+The FastAPI backend routes requests internally, which Nginx proxies globally under the `/api` path. Major endpoints include:
+
+- `GET /dashboard/summary`: High-level aggregated statistics.
+- `GET /weather/forecast/{city_id}`: 5-day weather forecast data.
+- `GET /cities`: List of the 36 monitored locations.
+- `GET /dashboard/rankings?metric=aqi`: Best and worst city classifications.
+- `GET /pipeline/runs`: Execution metadata for the data pipeline.
+
+## Local Development
+
+### Prerequisites
+- [Git](https://git-scm.com/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Node.js (for isolated frontend development, optional)
+- Python 3.10+ (for isolated backend development, optional)
+
+### Environment Configuration
+The project requires a `.env` file at the repository root. This file is strictly for local development and is ignored by Git.
+
+Create a `.env` file with the following placeholders:
+
+```env
+# PostgreSQL Configuration
+POSTGRES_USER=your_dev_user
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=cityair
+
+# Airflow Configuration
+AIRFLOW_DB_PASSWORD=your_airflow_db_password
+AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://your_dev_user:your_secure_password@postgres/cityair
+AIRFLOW_UID=50000
+
+# Backend Configuration
+CORS_ORIGINS=http://localhost:5173,http://localhost
+```
+
+### Launching the Stack
+
+Once your `.env` is configured, start the entire ecosystem using Docker Compose:
+
+```bash
+# Build and start all services in detached mode
+docker compose up -d --build
+
+# Check the status of the containers
+docker compose ps
+```
+
+Access the application at `http://localhost`. The FastAPI documentation is available internally at `http://localhost:8000/docs`, and the Airflow UI at `http://localhost:8080`.
+
+## Testing
+
+Documented testing commands can be executed against the current repository state:
+
+```bash
+python -m pytest tests/
+
+cd frontend
+npm run lint
+npm run build
+cd ..
+
+docker compose config
+docker compose build
+```
+
+## Configuration and Security
+
+- **.env File**: `.env` is local-only and ignored by Git.
+- **Environment Variables**: Configuration is supplied through environment variables.
+- **CORS**: CORS is configurable.
+- **Secrets**: Secrets should not be committed.
+- **Port Exposure**: PostgreSQL and Airflow should not be publicly exposed in a production deployment.
+
+## Deployment Status
+
+- Dockerized deployment is implemented.
+- Local Docker Compose deployment is verified.
+- Public cloud deployment has NOT yet been completed.
+- Oracle Cloud Always Free is being evaluated as a future deployment target.
+- No permanent public demo URL should be claimed yet.
+- GitHub Actions currently provides CI, not deployment/CD.
+
+## Engineering Highlights
+
+- Dockerized multi-service architecture
+- PostgreSQL persistence
+- Airflow hourly orchestration
+- Python ingestion pipeline
+- FastAPI service layer
+- React/TypeScript frontend
+- Nginx reverse proxy
+- GitHub Actions CI
+- automated backend/frontend/Docker/Airflow validation
+- 36-city master data
+
+## Current Status
+
+- [x] React dashboard
+- [x] FastAPI backend
+- [x] PostgreSQL
+- [x] Weather/AQI ingestion
+- [x] 36-city master data
+- [x] Airflow hourly orchestration
+- [x] Docker Compose
+- [x] Nginx
+- [x] GitHub Actions CI
+- [x] Responsive frontend
+- [ ] Public cloud deployment
+- [ ] CI/CD deployment automation
