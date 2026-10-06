@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import type { DashboardMapData, DashboardSummary, PipelineStatus, TimeSeriesTrend } from "../types";
+import React from "react";
+import type { DashboardMapData, DashboardSummary, TimeSeriesTrend } from "../types";
 import { IndiaMap } from "../components/IndiaMap";
 import { SelectedCityPanel } from "../components/SelectedCityPanel";
 import { HistoricalChart } from "../components/HistoricalChart";
@@ -8,9 +8,6 @@ import {
   ColorfulTemperatureIcon,
   ColorfulBuildingIcon,
 } from "../components/ColorfulIcons";
-import {
-  getMockRecentPipelineRuns,
-} from "../api/mockAdapter";
 
 const API_URL = "http://localhost:8000";
 
@@ -36,34 +33,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     "24H",
   );
 
-  const [pipelineStatus, setPipelineStatus] = React.useState<PipelineStatus | null>(null);
 
-  React.useEffect(() => {
-    const fetchPipeline = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/dashboard/pipeline");
-        if (res.ok) {
-          const data = await res.json();
-          setPipelineStatus(data);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchPipeline();
-  }, []);
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      timeZoneName: "short"
-    });
-  };
 
   const [aqiTrend, setAqiTrend] = React.useState<TimeSeriesTrend[]>([]);
   const [tempTrend, setTempTrend] = React.useState<TimeSeriesTrend[]>([]);
@@ -97,7 +68,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     };
     fetchTempTrend();
   }, [tempPeriod]);
-  const pipelineRuns = useMemo(() => getMockRecentPipelineRuns(), []);
 
   return (
     <div className="dashboard-page">
@@ -281,47 +251,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="dashboard-card pipeline-card">
-          <div className="trend-header">
-            <div className="trend-title">Recent Pipeline Runs</div>
-          </div>
-          <div style={{ padding: "0 16px 8px", fontSize: "12px", color: "#6b7280" }}>
-            Last pipeline run: {pipelineStatus ? formatDate(pipelineStatus.completed_at || pipelineStatus.started_at) : "Loading..."}<br />
-            Latest observation: {summary?.last_observation_at ? formatDate(summary.last_observation_at) : "Loading..."}
-          </div>
-          <div style={{ flex: 1, overflowY: "auto" }}>
-            <table className="pipeline-table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Pipeline</th>
-                  <th>Status</th>
-                  <th>Records</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pipelineRuns.map((run) => (
-                  <tr key={run.id}>
-                    <td>
-                      {new Date(run.time).toLocaleTimeString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                      })}
-                    </td>
-                    <td>{run.type}</td>
-                    <td>
-                      <span className="status-pill">{run.status}</span>
-                    </td>
-                    <td>28</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+
       </section>
     </div>
   );

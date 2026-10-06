@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, GeoJSON, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, GeoJSON, CircleMarker, Popup, Pane } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import type { DashboardMapData } from "../types";
 
@@ -67,9 +67,9 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
     >
       <MapContainer
         key={isMobile ? "mobile-map" : "desktop-map"}
-        center={isMobile ? [23.5, 82.0] : [22.5, 78.5]}
-        zoom={isMobile ? 3.8 : 4.5}
-        minZoom={3.5} // Allow zooming out more on mobile
+        center={isMobile ? [23.5, 82.0] : [21.5, 79.0]}
+        zoom={isMobile ? 3.8 : 4.0}
+        minZoom={3.0} // Allow zooming out more
         zoomSnap={0.1} // Enable fractional zoom snapping for perfect fit
         maxBounds={indiaBounds}
         maxBoundsViscosity={1.0}
@@ -96,30 +96,32 @@ export const IndiaMap: React.FC<IndiaMapProps> = ({
                 interactive: false // MUST NOT intercept clicks for markers
               }}
             />
-            {cities.map((city) => (
-              <CircleMarker
-                key={city.city_id}
-                center={[city.latitude, city.longitude]}
-                radius={city.city_id === selectedCityId ? 8 : 6}
-                interactive={true} // Explicitly ensure markers are clickable
-                pathOptions={{
-                  color:
-                    city.city_id === selectedCityId ? (isDark ? "#ffffff" : "#0f172a") : "transparent",
-                  weight: city.city_id === selectedCityId ? 2 : 0,
-                  fillColor: getAqiColor(city.aqi),
-                  fillOpacity: 1,
-                }}
-                eventHandlers={{
-                  click: () => onCityClick(city.city_id),
-                }}
-              >
-                <Popup className="city-map-popup">
-                  <strong>{city.city_name}</strong>
-                  <br />
-                  AQI: {city.aqi ?? "N/A"}
-                </Popup>
-              </CircleMarker>
-            ))}
+            <Pane name="markersPane" style={{ zIndex: 450 }}>
+              {cities.map((city) => (
+                <CircleMarker
+                  key={city.city_id}
+                  center={[city.latitude, city.longitude]}
+                  radius={city.city_id === selectedCityId ? 8 : 6}
+                  interactive={true} // Explicitly ensure markers are clickable
+                  pathOptions={{
+                    color:
+                      city.city_id === selectedCityId ? (isDark ? "#ffffff" : "#0f172a") : "transparent",
+                    weight: city.city_id === selectedCityId ? 2 : 0,
+                    fillColor: getAqiColor(city.aqi),
+                    fillOpacity: 1,
+                  }}
+                  eventHandlers={{
+                    click: () => onCityClick(city.city_id),
+                  }}
+                >
+                  <Popup className="city-map-popup">
+                    <strong>{city.city_name}</strong>
+                    <br />
+                    AQI: {city.aqi ?? "N/A"}
+                  </Popup>
+                </CircleMarker>
+              ))}
+            </Pane>
           </>
         )}
       </MapContainer>

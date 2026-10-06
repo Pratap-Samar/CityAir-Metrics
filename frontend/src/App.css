@@ -313,7 +313,7 @@ body {
   display: grid;
   grid-template-columns: 5fr 5fr;
   gap: 16px;
-  flex: 1;
+  flex: 1.1;
   min-height: 0;
 }
 
@@ -541,9 +541,10 @@ body {
 /* Row 3 */
 .dashboard-row-3 {
   display: grid;
-  grid-template-columns: 3.5fr 3.5fr 3fr; /* Shrunk pipeline table to give graphs more room */
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
-  flex: 0 0 240px;
+  flex: 1;
+  min-height: 0;
 }
 
 .trend-card {
