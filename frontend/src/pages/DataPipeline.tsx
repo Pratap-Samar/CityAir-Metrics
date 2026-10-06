@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './DataPipeline.css';
 import { 
   CheckCircle2, Clock, Calendar, Database, Cloud, Wind, 
-  ExternalLink, Settings, LayoutList 
+  Settings 
 } from 'lucide-react';
 import type { DashboardSummary, PipelineRun, PipelineStatus } from '../types';
 import { API_URL } from '../App';
@@ -113,11 +113,6 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
           <h1>Data Pipeline</h1>
           <p>Monitor data ingestion, processing and system health</p>
         </div>
-        <div className="pipeline-actions">
-          <button className="view-api-btn">
-            &lt;/&gt; View API Docs <ExternalLink size={14} />
-          </button>
-        </div>
       </div>
 
       <div className="pipeline-stats-grid">
@@ -171,9 +166,6 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
                 <h2>Recent Pipeline Runs</h2>
                 <p>Latest pipeline executions for weather and air quality data</p>
               </div>
-              <button className="view-all-btn">
-                <LayoutList size={16} /> View All Runs
-              </button>
             </div>
             
             <div className="runs-table-wrapper">
@@ -186,7 +178,6 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
                     <th>Status</th>
                     <th>Records Processed</th>
                     <th>Duration</th>
-                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -202,7 +193,6 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
                       </td>
                       <td>{run.cities_processed * 2}</td>
                       <td>{formatDuration(run.duration_seconds)}</td>
-                      <td><span className="chevron">&gt;</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -216,9 +206,6 @@ export const DataPipeline: React.FC<DataPipelineProps> = ({ summary }) => {
               <div>
                 <h2>Pipeline Logs <span className="log-badge">(Latest Run)</span></h2>
               </div>
-              <button className="view-logs-btn">
-                <ExternalLink size={14} /> View Full Logs
-              </button>
             </div>
             <div className="terminal-box">
               <pre>{generateLogs(latestRun)}</pre>

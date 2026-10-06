@@ -192,7 +192,7 @@ export const About: React.FC<AboutProps> = ({ summary }) => {
         </div>
         <div className="footer-right">
           Open Data <span className="separator">|</span> Open Source <span className="separator">|</span> Built for a Cleaner India <span className="separator">|</span> 
-          <a href="#" className="github-link">
+          <a href="https://github.com/Pratap-Samar/CityAir-Metrics" target="_blank" rel="noopener noreferrer" className="github-link">
              View on GitHub <ExternalLink size={14} />
           </a>
         </div>
