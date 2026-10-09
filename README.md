@@ -2,6 +2,41 @@
 
 CityAir Metrics is an environmental monitoring and data-engineering platform focused on India's 36 state and union territory capitals. It integrates hourly weather and air quality (AQI) data ingestion, an analytics layer, RESTful API services, and a responsive React dashboard. The system is fully containerized using Docker, relies on PostgreSQL for persistent storage, and uses Apache Airflow for pipeline orchestration, with continuous integration driven by GitHub Actions.
 
+
+**Backend & Data Engineering**
+
+
+
+
+
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=apacheairflow&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React, TypeScript, Vite |
+| **Backend** | FastAPI, Python |
+| **Database** | PostgreSQL |
+| **Data Ingestion** | Python, Open-Meteo |
+| **Orchestration** | Apache Airflow |
+| **Reverse Proxy** | Nginx |
+| **Containers** | Docker, Docker Compose |
+| **Testing** | Pytest |
+| **CI** | GitHub Actions |
+
 ## Features
 
 - **Extensive Coverage**: Monitors 36 Indian state and UT capitals.
@@ -66,20 +101,6 @@ flowchart TD
 
 ### Data Pipeline
 ![Data Pipeline](images/Screenshot%202026-10-06%20230652.png)
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Frontend** | React, TypeScript, Vite |
-| **Backend** | FastAPI, Python |
-| **Database** | PostgreSQL |
-| **Data Ingestion** | Python, Open-Meteo |
-| **Orchestration** | Apache Airflow |
-| **Reverse Proxy** | Nginx |
-| **Containers** | Docker, Docker Compose |
-| **Testing** | Pytest |
-| **CI** | GitHub Actions |
 
 ## Project Structure
 
